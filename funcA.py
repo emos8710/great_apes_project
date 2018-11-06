@@ -1,8 +1,10 @@
 import gzip
+
+file = 'sample_data/Gorilla_beringei_graueri-Serufuli.mpile.gz'
 tup = []
 groups = {}
 lens = []
-with gzip.open('Gorilla_beringei_graueri-Serufuli.mpile.gz') as f:
+with gzip.open(file) as f:
 	for line in f:
 		split = line.strip().split("\t")
 		tup.append((split[0], split[3]))
