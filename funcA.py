@@ -2,12 +2,9 @@ import gzip
 import os
 
 files = []
-for name in os.listdir('sample_data'):
-	files.append(gzip.open('sample_data/' + name))
-
-#path = 'C:/Users/Kristina/Documents/GitHub/great_apes_project/sample_data'
-
-file = 'sample_data/Gorilla_beringei_graueri-Serufuli.mpile.gz'
+path = 'sample_data/'
+for name in os.listdir(path):
+	files.append(gzip.open(path + name))
 
 def function_A(file):
 	#Function which estimate the abundance (number of copies) of each virus for an individual.
@@ -31,8 +28,9 @@ def function_A(file):
 		num_cov= len(groups[x])
 		lens  = [len(s) for s in groups[x]]
 		num_nuc = sum(lens)
-		abundance = float(num_nuc/num_cov)
+		abundance = float(num_nuc)/float(num_cov)
 		output[x] = abundance
 	print output
 
-print function_A(file)
+for i in range(len(files)):
+	print function_A(files[i].name)
