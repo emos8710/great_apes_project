@@ -1,14 +1,16 @@
-def functionC(apfil):
+def functionC(sample_file):
+
 #This function takes an opened file with tab separated values on the form
 #VirusId	Position	ReferenceNucleotide	MappedNucleotides
 # and returns, for each virus in the file, the virus ID and the error rate of mapping (wrongly mapped nucleotides / all mapped nucelotides) as a dictionary
+	import gzip
 	viruslist = []
 	viruses = {}
-
-	for line in apfil:
-		(seqid, loc, nuc, nucmap) = line.strip().split("\t") #read the lines and divide by column
-		viruslist.append((seqid, nuc, nucmap))
-
+	with gzip.open(sample_file) as apfil:
+		for line in apfil:
+			(seqid, loc, nuc, nucmap) = line.strip().split("\t") #read the lines and divide by column
+			viruslist.append((seqid, nuc, nucmap))
+	apfil.close()
 
 	for x,y,z in viruslist: #go through three elements at a time
 		virus = viruses.get(x, [])
