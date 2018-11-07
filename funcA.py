@@ -9,7 +9,7 @@ for name in os.listdir(path):
 # ============================
 
 def function_A(file):
-	# Function which estimate the abundance (number of copies) of each virus for an individual and stores this information
+	# Function which estimate the abundance (number of copies) of each virus for an individual and returns this information
 	# in a dictionary.
 
 	tup = []
