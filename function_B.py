@@ -1,9 +1,9 @@
 import gzip
+import numpy as np
 from collections import defaultdict
 
 """
-NC_0014222 is phiX = not a true signal but a virus added later to the s
-sample
+Output: Dict with virus codes as key, value = [%unmapped, mean, std, good]
 """
 
 sample_file = "sample_data/Gorilla_beringei_beringei-Imfura.mpile.gz"
@@ -24,9 +24,24 @@ with gzip.open(sample_file) as f2:
     for line in f2:
         (seqid, loc, nuc, nucmap) = line.strip().split("\t")
         maps[seqid].append(len(nucmap))
+f2.close()
 
-# Calculate nr of unmapped nucs for each virus
+# Calculate % of unmapped nucs for each virus
 unmapped = {}
 for key in maps:
-    unmapped[key] = virus_sizes[key] - len(maps[key])
+    unmapped[key] = float((virus_sizes[key] - len(maps[key]))) / virus_sizes[key]
+
+# Calculate mean, standard deviation and expected mean of data.
+# Data with mean within one std of the expected mean are good.
+stats = {}
+for key in maps:
+    temp_mean = np.mean(maps[key])
+    temp_std = np.std(maps[key])
+    exp_mean = (min(maps[key]) + max(maps[key])) / 2
+    if (temp_mean <= exp_mean + temp_std) and (temp_mean >= exp_mean - temp_std):
+        good = 1
+    else:
+        good = 0
+    stats[key] = [unmapped[key], temp_mean, temp_std, good]
+
 
