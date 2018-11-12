@@ -1,12 +1,14 @@
 import gzip
 import numpy as np
 from collections import defaultdict
+import matplotlib.pyplot as plt
 
 """
 Output: Dict with virus codes as key, value = [%unmapped, mean, std, good]
 """
 
-sample_file = "sample_data/Gorilla_beringei_beringei-Imfura.mpile.gz"
+# sample_file = "sample_data/Gorilla_beringei_beringei-Imfura.mpile.gz"
+sample_file = "sample_data/Homo_sapiens_C10.mpile.gz"
 virus_size_file = "sample_data/virus_genome_sizes.tsv"
 
 # Read virus sizes into dict
@@ -44,4 +46,18 @@ for key in maps:
         good = 0
     stats[key] = [unmapped[key], temp_mean, temp_std, good]
 
+# Bar plots of the coverage for several viruses.
+fig1 = plt.figure()
+for i in range(1, 26):
+    plt.subplot(5, 5, i)
+    bars = np.bincount(maps[maps.keys()[i+200]])
+    plt.bar(range(0, len(bars)), bars)
 
+plt.show()
+
+# Bar plot of the coverage for human herpes virus 4
+# HHV4 = NC_009334.1
+fig2 = plt.figure()
+bars = np.bincount(maps['NC_009334.1'])
+plt.bar(range(0, len(bars)), bars)
+plt.show()
