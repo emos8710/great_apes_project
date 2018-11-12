@@ -4,6 +4,7 @@ all_sample_data/
 
 virus_data/
 
+test_output/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
