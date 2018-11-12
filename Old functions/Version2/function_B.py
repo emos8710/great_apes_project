@@ -47,13 +47,13 @@ for key in maps:
     stats[key] = [unmapped[key], temp_mean, temp_std, good]
 
 # Bar plots of the coverage for several viruses.
-fig1 = plt.figure()
-for i in range(1, 26):
-    plt.subplot(5, 5, i)
-    bars = np.bincount(maps[maps.keys()[i+200]])
-    plt.bar(range(0, len(bars)), bars)
-
-plt.show()
+# fig1 = plt.figure()
+# for i in range(1, 26):
+#     plt.subplot(5, 5, i)
+#     bars = np.bincount(maps[maps.keys()[i+300]])
+#     plt.bar(range(0, len(bars)), bars)
+#
+# plt.show()
 
 # Bar plot of the coverage for human herpes virus 4
 # HHV4 = NC_009334.1
@@ -61,3 +61,4 @@ fig2 = plt.figure()
 bars = np.bincount(maps['NC_009334.1'])
 plt.bar(range(0, len(bars)), bars)
 plt.show()
+print bars
