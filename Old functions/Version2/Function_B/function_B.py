@@ -9,7 +9,7 @@ Output: Dict with virus codes as key, value = [%unmapped, mean, std, good]
 
 # sample_file = "sample_data/Gorilla_beringei_beringei-Imfura.mpile.gz"
 sample_file = "sample_data/Homo_sapiens_C10.mpile.gz"
-virus_size_file = "sample_data/virus_genome_sizes.tsv"
+virus_size_file = "virus_data/virus_genome_sizes.tsv"
 
 # Read virus sizes into dict
 virus_sizes = {}
