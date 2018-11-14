@@ -1,6 +1,6 @@
 import gzip
 import os
-# from function_B_v2 import functionB
+from function_B_v2 import functionB
 from map_percent_filter import map_percent_filter
 
 MappedThreshold = 0.1
@@ -22,9 +22,12 @@ f1.close()
 
 final_result = {}
 for i in range(len(files)):
+	print files[i].name
 	result = map_percent_filter(files[i].name, MappedThreshold, virus_sizes)
 	virus_ids = result.keys()
+	print result.keys()
+	result = functionB(files[i].name, virus_ids)
+	print result.keys()
 
 	final_result[files[i].name] = result
 
-print final_result
