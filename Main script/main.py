@@ -12,13 +12,13 @@ ErrorRateThreshold = 0.3
 AbundanceThreshold = 5
 
 files = []
-path = 'sample_data/' #Directory where all files are stored
-for name in os.listdir(path): #save all files to files variable
+path = 'sample_data/' # Directory where all files are stored
+for name in os.listdir(path): # save all files to files variable
 	files.append(gzip.open(path + name))
 
-#ApeDictionary = {}
+# ApeDictionary = {}
 
-output = 'test_output/output.tsv' #Output path
+output = 'test_output/output.tsv' # Output path
 headers = ['FileName','VirusID','VirusName','Abundance','Coverage','ErrorRate']
 
 virusFile = "virus_data/virus_names.tsv"
