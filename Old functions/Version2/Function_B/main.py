@@ -25,9 +25,9 @@ for i in range(len(files)):
 	print files[i].name
 	result = map_percent_filter(files[i].name, MappedThreshold, virus_sizes)
 	virus_ids = result.keys()
-	print result.keys()
+	#print result.keys()
 	result = functionB(files[i].name, virus_ids)
-	print result.keys()
+	#print result.keys()
 
 	final_result[files[i].name] = result
 
