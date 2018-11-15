@@ -6,7 +6,7 @@ def functionB(sample_file, virus_ids):
 	import matplotlib.pyplot as plt
 
 	"""
-	Output: Dict with virus codes as key, value = [%unmapped, mean, std, good]
+	Function B testing either with mean comparisons or a normality test. Outputs either [mean, std] or p-value.
 	"""
 
 	# Read mapped nucleotides into a dict of lists containing the number of maps per nuc

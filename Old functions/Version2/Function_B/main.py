@@ -1,6 +1,6 @@
 import gzip
 import os
-from function_B_v2 import functionB
+from function_B_v3 import functionB
 from map_percent_filter import map_percent_filter
 
 MappedThreshold = 0.1
