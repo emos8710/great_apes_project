@@ -1,19 +1,11 @@
 import gzip
 import os
-# import csv
-# import pandas as pd
-# from collections import defaultdict
-# from functionC import functionC
-# from functionA import functionA
-# from functionB import functionB
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.ticker as plticker
-from scipy.stats import binned_statistic
+# This script takes an opened file with tab separated values on the form
+# VirusId	Position	ReferenceNucleotide	MappedNucleotides
+# and plots incoherence of mapping
 
-CoverageThreshold = 0.9
-ErrorRateThreshold = 0.3
-AbundanceThreshold = 5
 incoherenceThreshold = 0.07
 incoherenceThresholdSmooth = 0.03
 binsize = 3
@@ -40,10 +32,6 @@ f.close()
 
 Apes = {}
 
-# This function takes an opened file with tab separated values on the form
-# VirusId	Position	ReferenceNucleotide	MappedNucleotides
-# and returns, for each virus in the file, the virus ID and the error rate of mapping
-# (wrongly mapped nucleotides / all mapped nucleotides) as a dictionary
 for i in range(len(files)):  # go through all files and call functions A, B and C.
     viruslist = []
     viruses = {}
@@ -61,7 +49,7 @@ for i in range(len(files)):  # go through all files and call functions A, B and 
     mismatches = {}
     errorRate = {}
     for x in viruses:
-        if x == 'NC_005052.1':
+        if x == 'NC_021704.1':
             counter = 0
             misnuc = 0
             Fractions = []
@@ -200,8 +188,8 @@ for i in range(len(files)):  # go through all files and call functions A, B and 
 
             # ax3.set_title(float(len(FilteredPositions)/len(Positions)))
             # PLOT THE GAPS
-            #for c in gaps:
-            #    ax1.plot([Positions[c + 1], Positions[c + 1]], [0, 0.6], color='g', linestyle='--', linewidth=1)
+            for c in gaps:
+                ax1.plot([Positions[c + 1], Positions[c + 1]], [0, 0.6], color='g', linestyle='--', linewidth=1)
 
             f.suptitle('file = {}, binsize = {}, S_thresh = {}, thresh = {}'.format(files[i].name, binsize, incoherenceThresholdSmooth, incoherenceThreshold))
             plt.show()
