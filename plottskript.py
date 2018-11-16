@@ -61,7 +61,7 @@ for i in range(len(files)):  # go through all files and call functions A, B and 
     mismatches = {}
     errorRate = {}
     for x in viruses:
-        if x == 'NC_024113.1':
+        if x == 'NC_005052.1':
             counter = 0
             misnuc = 0
             Fractions = []
