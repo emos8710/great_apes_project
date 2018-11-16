@@ -80,5 +80,4 @@ def functionB(sample_file, virus_ids, mean_th=1.0, peak_locov=0.15, peak_hicov=0
 	# 	plt.bar(range(0, len(bars)), bars)
 	# plt.show()
 
-	print 'Nr trimmed viruses: ', trimmed
 	return virus_result
