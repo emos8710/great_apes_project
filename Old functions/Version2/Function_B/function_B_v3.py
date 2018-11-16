@@ -30,11 +30,7 @@ def functionB(sample_file, virus_ids, mean_th=1.0, peak_locov=0.15, peak_hicov=0
 				map_nuc[seqid].append(nucmap)
 	f1.close()
 
-	trim_map_loc = {}
-	trim_ref_nuc = {}
-	trim_map_nuc = {}
 	virus_result = {}
-	trimmed = 0
 	for key in maps:
 		bars = np.bincount(maps[key])		# bars = [nr of sites]
 		temp = [x for x in enumerate(bars) if x[1] != 0]		# temp = [coverage, nr of sites]
@@ -46,12 +42,10 @@ def functionB(sample_file, virus_ids, mean_th=1.0, peak_locov=0.15, peak_hicov=0
 		mean_end = np.mean(temp[lim85+1:lim100], axis=0)[1] if lim85+1 < lim100 else 0
 		if mean_end > mean_mid * mean_th and mean_beg > mean_mid:
 			inx = [i for i, x in enumerate(maps[key]) if x < temp[lim85][0]]		# x < temp[lim85][0] removes the
-			trimmed = trimmed + 1													# 15 % most covered sites
+			# 15 % most covered sites
 		else:
 			inx = [i for i, x in enumerate(maps[key])]
-		# trim_map_loc[key] = [map_loc[key][i] for i in inx]
-		# trim_ref_nuc[key] = [ref_nuc[key][i] for i in inx]
-		# trim_map_nuc[key] = [map_nuc[key][i] for i in inx]
+
 		virus_result[key] = {}
 		virus_result[key]['trim_map_loc'] = [map_loc[key][i] for i in inx]
 		virus_result[key]['trim_ref_nuc'] = [ref_nuc[key][i] for i in inx]
@@ -86,4 +80,5 @@ def functionB(sample_file, virus_ids, mean_th=1.0, peak_locov=0.15, peak_hicov=0
 	# 	plt.bar(range(0, len(bars)), bars)
 	# plt.show()
 
+	print 'Nr trimmed viruses: ', trimmed
 	return virus_result
