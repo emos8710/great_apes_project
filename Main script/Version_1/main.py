@@ -12,26 +12,16 @@ ErrorRateThreshold = 0.3
 AbundanceThreshold = 4
 
 files = []
-<<<<<<< HEAD:Main script/Version_1/main.py
-path = 'sample_data/' # Directory where all files are stored
-for name in os.listdir(path): # save all files to files variable
-=======
-path = '../sample_data/'  # Directory where all files are stored
+path = '../../sample_data/'  # Directory where all files are stored
 for name in os.listdir(path):  # Save all files to files variable
->>>>>>> functionA_v2:Main script/main.py
 	files.append(gzip.open(path + name))
 
 # ApeDictionary = {}
 
-<<<<<<< HEAD:Main script/Version_1/main.py
-output = 'test_output/output.tsv' # Output path
-headers = ['FileName','VirusID','VirusName','Abundance','Coverage','ErrorRate']
-=======
-output = '../test_output/output.tsv'  # Output path
+output = '../../test_output/output.tsv'  # Output path
 headers = ['FileName', 'VirusID', 'VirusName', 'Abundance', 'Coverage', 'ErrorRate']
->>>>>>> functionA_v2:Main script/main.py
 
-virusFile = "../virus_data/virus_names.tsv"
+virusFile = "../../virus_data/virus_names.tsv"
 virus = {}
 with open(virusFile) as f:
 	for line in f:
@@ -59,8 +49,8 @@ with open(output, 'wt') as outfile:
 						tsv_writer.writerow((files[i].name,key,virus[id],float(round(Abundance.get(key),2)), float(round(1-Coverage.get(key)[0],3)), float(round(ErrorRate.get(key)[0],3))))
 outfile.close()
 
-niceOutput = pd.read_csv('../test_output/output.tsv', sep='\t')
-niceOutput.to_csv("../test_output/output_excel_file.xls", sep='\t', index=False)
+niceOutput = pd.read_csv('../../test_output/output.tsv', sep='\t')
+niceOutput.to_csv("../../test_output/output_excel_file.xls", sep='\t', index=False)
 
 #print ApeDictionary
 
