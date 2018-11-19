@@ -1,8 +1,8 @@
-import pandas as pd
 from collections import defaultdict
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 """
 Preliminary script that produces a heatmap (or more) from the output file from main.py. So far this is only done for
@@ -65,5 +65,5 @@ ax = plt.gca()  # Get the axes
 heatMap = plt.imshow(df, cmap=cmap)
 divider = make_axes_locatable(ax)  # Adjust the dimensions of the colorbar
 cax = divider.append_axes("right", size="3%", pad=0.05)
-plt.colorbar(heatMap,cax)
+plt.colorbar(heatMap, cax)
 plt.show()
