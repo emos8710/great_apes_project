@@ -13,16 +13,21 @@ from functionC_v2 import functionC
 MappedThreshold = 0.1
 incoherenceThreshold = 0.07
 incoherenceThresholdSmooth = 0.03
-CoverageThreshold = 0.9
 ErrorRateThreshold = 0.3
 AbundanceThreshold = 10
 binsize = 3
 jumpSize = 100
 
-output = 'test_output/output.tsv'		# Output path
+# Create output file. OVERWRITES PREVIOUS OUTPUT FILE!
+outfile_path = 'test_output/output.tsv'		# Output path
 headers = ['FileName', 'VirusID', 'VirusName', 'Abundance', 'Coverage', 'ErrorRate']  # headers in the file
+with open(outfile_path, 'w') as outfile:
+	tsv_writer = csv.writer(outfile, delimiter='\t')
+	tsv_writer.writerow(headers)
 
-virus_size_file = "virus_data/virus_genome_sizes.tsv"  # where to find file with virus genome sizes
+# Location of virus info files
+virus_size_file = "virus_data/virus_genome_sizes.tsv"
+virus_name_file = "virus_data/virus_names.tsv"
 
 # SAVE SAMPLE FILE NAMES
 files = []
@@ -39,9 +44,8 @@ with open(virus_size_file) as f1:
 f1.close()
 
 # FETCH VIRUS NAMES
-virusFile = "virus_data/virus_names.tsv"
 virus = {}
-with open(virusFile) as f:
+with open(virus_name_file) as f:
 	for line in f:
 		(id, name) = line.strip().split("\t")
 		virus[id] = name
@@ -74,6 +78,7 @@ for i in range(len(files)):
 		incoherenceThresholdSmooth
 
 	inc_filtered = Incoherence_filter(Cov_result, incoherenceThreshold, incoherenceThresholdSmooth, binsize, jumpSize)
+
 	# Prepare output from filtering to be input to the functions A, B and C
 	inputA = []
 	inputB = {}
@@ -84,28 +89,24 @@ for i in range(len(files)):
 			inputA.append((key, inc_filtered[key]['mapped_nucs'][j])) # change to 'mapped_nucs_smooth' for smoothed version
 			inputC.append((key, inc_filtered[key]['ref_nuc'][j], inc_filtered[key]['mapped_nucs'][j]))  # change to 'ref_nuc_smooth, 'mapped_nucs_smooth' for smoothed version
 
-print 'Filtering and printing to file. Abundance th: ', AbundanceThreshold, 'Coverage th: ', CoverageThreshold, \
-	'Error rate th: ', ErrorRateThreshold
+	print 'Filtering and printing to file. Abundance th: ', AbundanceThreshold, 'Mapped th: ', MappedThreshold, \
+		'Error rate th: ', ErrorRateThreshold
 
-with open(output, 'wt') as outfile:
-	tsv_writer = csv.writer(outfile, delimiter='\t')
-	tsv_writer.writerow(headers)
-	for i in range(len(files)):  # go through all files and call functions A, B and C.
-		Abundance = functionA(inputA)
-		Coverage = map_percent_filter(inputB, 0, virus_sizes)
-		ErrorRate = functionC(inputC)
+	Abundance = functionA(inputA)
+	Mapped = map_percent_filter(inputB, 0, virus_sizes)
+	ErrorRate = functionC(inputC)
+
+	with open(outfile_path, 'a') as outfile:
+		tsv_writer = csv.writer(outfile, delimiter='\t')
 		for key in Abundance:  # Go through all virus IDs, should be same from all functions from the same file
-			if Abundance.get(key) > AbundanceThreshold and Coverage.get(key) < CoverageThreshold and \
+			if Abundance.get(key) > AbundanceThreshold and Mapped.get(key) > MappedThreshold and \
 					ErrorRate.get(key) < ErrorRateThreshold:
-				for id in virus:
-					if id == key:
-						tsv_writer.writerow((files[i].name, key, virus[id], float(round(Abundance.get(key), 2)),
-											 float(round(1 - Coverage.get(key), 3)),
-											 float(round(ErrorRate.get(key), 3))))
-outfile.close()
+				tsv_writer.writerow([files[i].name, key, virus[key],
+									float(round(Abundance.get(key), 2)),
+									float(round(Mapped.get(key), 3)),
+									float(round(ErrorRate.get(key), 3))])
 
-niceOutput = pd.read_csv('test_output/output.tsv', sep='\t')
-niceOutput.to_csv("test_output/output_excel_file.xls", sep='\t', index=False)
-
+# niceOutput = pd.read_csv('test_output/output.tsv', sep='\t')
+# niceOutput.to_csv("test_output/output_excel_file.xls", sep='\t', index=False)
 
 # final_result[files[i].name] = inc_filtered
