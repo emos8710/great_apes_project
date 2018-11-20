@@ -106,7 +106,7 @@ for i in range(len(files)):
 									float(round(Mapped.get(key), 3)),
 									float(round(ErrorRate.get(key), 3))])
 
-# niceOutput = pd.read_csv('test_output/output.tsv', sep='\t')
-# niceOutput.to_csv("test_output/output_excel_file.xls", sep='\t', index=False)
+niceOutput = pd.read_csv('test_output/output.tsv', sep='\t')
+niceOutput.to_csv("test_output/output_excel_file.xls", sep='\t', index=False)
 
 # final_result[files[i].name] = inc_filtered
