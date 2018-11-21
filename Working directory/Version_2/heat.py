@@ -1,4 +1,5 @@
 from collections import defaultdict
+from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,6 +16,10 @@ virus = defaultdict(list)
 virusLabel = set()
 sampleNames = set()
 
+Abs = []
+Covs = []
+Errs = []
+
 with open(inputFile) as f:
 	firstLine = f.readline()  # Don't include header
 	for line in f:
@@ -23,6 +28,9 @@ with open(inputFile) as f:
 		virus[virusName].append((fileName, abundance))
 		virusLabel.add(virusName)
 		sampleNames.add(fileName)
+		Abs.append(abundance)
+		Covs.append(coverage)
+		Errs.append(errorRate)
 f.close()
 
 output = defaultdict(list)  # Store which samples contain which viruses in a dictionary (based on abundance)
@@ -52,18 +60,33 @@ index = pdOut.index
 cols = list(virusLabel)
 val = pdOut.values
 
-val = np.ma.masked_where(val == 0, val)  # Set color to white for missing viruses (abundance == 0)
-cmap = plt.cm.Greens
-cmap.set_bad(color='white')
+# val = np.ma.masked_where(val == 0, val)  # Set color to white for missing viruses (abundance == 0)
+# cmap = plt.cm.Greens
+# cmap.set_bad(color='white')
+#
+# df = pd.DataFrame(val, index=index, columns=cols)  # Make another DataFrame (lol) this just made it easier to plot.
+# df = df[df.columns].astype(float)  # Change dtype to float64
+# plt.yticks(np.arange(len(df.index)), df.index)  # Set sample names as Y-axis
+# plt.xticks(np.arange(len(df.columns)), df.columns, rotation='vertical')  # Set virus names as X-axis
+#
+# ax = plt.gca()  # Get the axes
+# heatMap = plt.imshow(df, cmap=cmap)
+# divider = make_axes_locatable(ax)  # Adjust the dimensions of the colorbar
+# cax = divider.append_axes("right", size="3%", pad=0.05)
+# plt.colorbar(heatMap, cax)
+# plt.show()
+
+# CORRELATION
 
 df = pd.DataFrame(val, index=index, columns=cols)  # Make another DataFrame (lol) this just made it easier to plot.
 df = df[df.columns].astype(float)  # Change dtype to float64
 plt.yticks(np.arange(len(df.index)), df.index)  # Set sample names as Y-axis
 plt.xticks(np.arange(len(df.columns)), df.columns, rotation='vertical')  # Set virus names as X-axis
 
-ax = plt.gca()  # Get the axes
-heatMap = plt.imshow(df, cmap=cmap)
-divider = make_axes_locatable(ax)  # Adjust the dimensions of the colorbar
-cax = divider.append_axes("right", size="3%", pad=0.05)
-plt.colorbar(heatMap, cax)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(np.asarray(Abs).astype(np.float), np.asarray(Covs).astype(np.float), np.asarray(Errs).astype(np.float), c='r')
+ax.set_xlabel('Abundance')
+ax.set_ylabel('Coverage')
+ax.set_zlabel('Error Rate')
 plt.show()
