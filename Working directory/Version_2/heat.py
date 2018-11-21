@@ -78,10 +78,9 @@ val = pdOut.values
 
 # CORRELATION
 
-df = pd.DataFrame(val, index=index, columns=cols)  # Make another DataFrame (lol) this just made it easier to plot.
-df = df[df.columns].astype(float)  # Change dtype to float64
-plt.yticks(np.arange(len(df.index)), df.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(df.columns)), df.columns, rotation='vertical')  # Set virus names as X-axis
+vars = np.column_stack((np.asarray(Abs).astype(np.float), np.asarray(Covs).astype(np.float), np.asarray(Errs).astype(np.float)))
+print vars
+print np.corrcoef(vars, rowvar=False)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
