@@ -12,9 +12,9 @@ from functionC_v2 import functionC
 
 MappedThreshold = 0.1
 incoherenceThreshold = 0.07
-incoherenceThresholdSmooth = 0.03
 ErrorRateThreshold = 0.3
 AbundanceThreshold = 10
+smooth = 1  # put 1 if you want smoothed filtering, 0 if not
 binsize = 3
 jumpSize = 100
 
@@ -74,20 +74,19 @@ for i in range(len(files)):
 	Cov_result = functionB(files[i].name, virus_ids, mean_th=1.0, peak_hicov=0.15, peak_locov=0.15)
 
 	# Filter the data again, this time based on incoherence in the mapping
-	print 'Trimming sites with incoherent mapping. Threshold: ', incoherenceThreshold, 'Smoothed threshold: ',\
-		incoherenceThresholdSmooth
+	print 'Trimming sites with incoherent mapping. Threshold: ', incoherenceThreshold
 
-	inc_filtered = Incoherence_filter(Cov_result, incoherenceThreshold, incoherenceThresholdSmooth, binsize, jumpSize)
+	inc_filtered = Incoherence_filter(Cov_result, incoherenceThreshold, smooth, binsize, jumpSize)
 
 	# Prepare output from filtering to be input to the functions A, B and C
 	inputA = []
 	inputB = {}
 	inputC = []
 	for key in inc_filtered:
-		inputB[key] = len(inc_filtered[key]['mapped_nucs'])  # change to 'mapped_nucs_smooth' for smoothed version
-		for j in range(len(inc_filtered[key]['mapped_nucs'])):  # change to 'mapped_nucs_smooth' for smoothed version
-			inputA.append((key, inc_filtered[key]['mapped_nucs'][j])) # change to 'mapped_nucs_smooth' for smoothed version
-			inputC.append((key, inc_filtered[key]['ref_nuc'][j], inc_filtered[key]['mapped_nucs'][j]))  # change to 'ref_nuc_smooth, 'mapped_nucs_smooth' for smoothed version
+		inputB[key] = len(inc_filtered[key]['mapped_nucs'])
+		for j in range(len(inc_filtered[key]['mapped_nucs'])):
+			inputA.append((key, inc_filtered[key]['mapped_nucs'][j]))
+			inputC.append((key, inc_filtered[key]['ref_nuc'][j], inc_filtered[key]['mapped_nucs'][j]))
 
 	print 'Filtering and printing to file. Abundance th: ', AbundanceThreshold, 'Mapped th: ', MappedThreshold, \
 		'Error rate th: ', ErrorRateThreshold
@@ -109,4 +108,3 @@ for i in range(len(files)):
 niceOutput = pd.read_csv('test_output/output.tsv', sep='\t')
 niceOutput.to_csv("test_output/output_excel_file.xls", sep='\t', index=False)
 
-# final_result[files[i].name] = inc_filtered
