@@ -3,7 +3,7 @@ import os
 import csv
 import pandas as pd
 from collections import defaultdict
-from map_percent_filter_v2 import map_percent_filter
+from map_percent_filter_v3 import map_percent_filter
 from Incoherence_filter import Incoherence_filter
 from functionA_v2 import functionA
 from function_B_v3 import functionB
@@ -54,22 +54,15 @@ f.close()
 # GO THROUGH ALL FILES
 Cov_result = {}
 for i in range(len(files)):
-	mapped = defaultdict(int)  # used for input to map_percent_filter
-	with gzip.open(files[i].name) as f1:
-		for line in f1:
-			(seqid, loc, nuc, nucmap) = line.strip().split("\t")
-			mapped[seqid] = mapped[seqid] + 1
-	f1.close()
-
 	print 'Analysing file ', files[i].name
 
 	# Filter out viruses with less than given mapped threshold to speed up later computations
 	print 'Filtering viruses with low mapping %. Threshold: ', MappedThreshold
-	Cov_result = map_percent_filter(mapped, MappedThreshold, virus_sizes)
+	MPF_result = map_percent_filter(files[i].name, virus_size_file, MappedThreshold)
 
-	virus_ids = Cov_result.keys()  # save the IDs of viruses that passed
+	virus_ids = MPF_result.keys()  # Save the IDs of viruses that passed
 
-	# Filter the data based on coverage, using functionB
+	# Filter the remaining virus data based on coverage, using functionB
 	print 'Trimming sites with unusually high coverage.'
 	Cov_result = functionB(files[i].name, virus_ids, mean_th=1.0, peak_hicov=0.15, peak_locov=0.15)
 
@@ -93,7 +86,7 @@ for i in range(len(files)):
 		'Error rate th: ', ErrorRateThreshold
 
 	Abundance = functionA(inputA)
-	Mapped = map_percent_filter(inputB, 0, virus_sizes)
+	Mapped = map_percent_filter(inputB, virus_size_file)
 	ErrorRate = functionC(inputC)
 
 	with open(outfile_path, 'a') as outfile:
