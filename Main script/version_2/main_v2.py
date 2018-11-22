@@ -54,7 +54,7 @@ f.close()
 # GO THROUGH ALL FILES
 Cov_result = {}
 for i in range(len(files)):
-	mapped = defaultdict(int)  # used for input to map:percent_filter
+	mapped = defaultdict(int)  # used for input to map_percent_filter
 	with gzip.open(files[i].name) as f1:
 		for line in f1:
 			(seqid, loc, nuc, nucmap) = line.strip().split("\t")
