@@ -29,12 +29,13 @@ with open(inputFile) as f:
 	firstLine = f.readline()  # Don't include header
 	for line in f:
 		(fileName, virusId, virusName, abundance, coverage, errorRate) = line.strip().split("\t")
-		data[fileName].append((virusName, abundance, coverage, errorRate))
-		virus[virusName].append((fileName, abundance, coverage, errorRate))
-		virusLabel.add(virusName)
-		Abs.append(abundance)
-		Covs.append(coverage)
-		Errs.append(errorRate)
+		if (virusId != 'NC_001422.1') & (virusId != 'NC_022518.1') & (virusId != 'NC_009334.1') & (virusId != 'NC_007605.1') & (virusId != 'NC_001604.1'):
+			data[fileName].append((virusId, abundance, coverage, errorRate))
+			virus[virusId].append((fileName, abundance, coverage, errorRate))
+			virusLabel.add(virusId)
+			Abs.append(abundance)
+			Covs.append(coverage)
+			Errs.append(errorRate)
 
 outputAbe = defaultdict(list)
 outputCov = defaultdict(list)
@@ -42,19 +43,19 @@ outputErr = defaultdict(list)
 
 for sample in data:
 	for key,value in virus.items():
-		listNames = [i[0] for i in value]
-		listAbe = [j[1] for j in value]
-		listCov = [j[2] for j in value]
-		listErr = [j[3] for j in value]
-		if any(elem == sample for elem in listNames):
-			ind = listNames.index(sample)
-			outputAbe[sample].append(listAbe[ind])
-			outputCov[sample].append(listCov[ind])
-			outputErr[sample].append(listErr[ind])
-		else:
-			outputAbe[sample].append(0)  # If the individual doesn't have the virus add a 0 instead
-			outputCov[sample].append(0)
-			outputErr[sample].append(0)
+			listId = [i[0] for i in value]
+			listAbe = [j[1] for j in value]
+			listCov = [j[2] for j in value]
+			listErr = [j[3] for j in value]
+			if any(elem == sample for elem in listId):
+				ind = listId.index(sample)
+				outputAbe[sample].append(listAbe[ind])
+				outputCov[sample].append(listCov[ind])
+				outputErr[sample].append(listErr[ind])
+			else:
+				outputAbe[sample].append(0)  # If the individual doesn't have the virus add a 0 instead
+				outputCov[sample].append(0)
+				outputErr[sample].append(0)
 
 # ABUNDANCE
 # Create pandas DataFrame for Abundance
@@ -98,7 +99,7 @@ cmap.set_bad(color='white')
 # ABUNDANCE
 # Heat map using output values for Abundance
 plt.yticks(np.arange(len(dfAbe.index)), dfAbe.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfAbe.columns)), dfAbe.columns, rotation='vertical')  # Set virus names as X-axis
+plt.xticks(np.arange(len(dfAbe.columns)), dfAbe.columns, rotation='vertical')  # Set virus ids as X-axis
 ax = plt.gca()  # Get the axes
 heatMapAbe = plt.imshow(dfAbe, cmap=cmap)
 divider = make_axes_locatable(ax)  # Adjust the dimensions of the color bar
@@ -110,7 +111,7 @@ plt.show()
 dfAbeZ = pd.DataFrame(valAbe, index=index, columns=cols)
 dfAbeZ = zscore(dfAbeZ)
 plt.yticks(np.arange(len(dfAbeZ.index)), dfAbeZ.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfAbeZ.columns)), dfAbeZ.columns, rotation='vertical')  # Set virus names as X-axis
+plt.xticks(np.arange(len(dfAbeZ.columns)), dfAbeZ.columns, rotation='vertical')  # Set virus ids as X-axis
 heatMapAbeZ = plt.imshow(dfAbeZ, cmap=cmap)
 plt.suptitle('Abundance Z-score')
 plt.colorbar(heatMapAbeZ, cax)
@@ -119,7 +120,7 @@ plt.show()
 # COVERAGE
 # Heat map using output values for Coverage
 plt.yticks(np.arange(len(dfCov.index)), dfCov.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfCov.columns)), dfCov.columns, rotation='vertical')  # Set virus names as X-axis
+plt.xticks(np.arange(len(dfCov.columns)), dfCov.columns, rotation='vertical')  # Set virus ids as X-axis
 heatMapCov = plt.imshow(dfCov, cmap=cmap)
 plt.suptitle('Coverage')
 plt.colorbar(heatMapCov, cax)
@@ -129,7 +130,7 @@ plt.show()
 dfCovZ = pd.DataFrame(valCov, index=index, columns=cols)
 dfCovZ = zscore(dfCovZ)
 plt.yticks(np.arange(len(dfCovZ.index)), dfCovZ.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfCovZ.columns)), dfCovZ.columns, rotation='vertical')  # Set virus names as X-axis
+plt.xticks(np.arange(len(dfCovZ.columns)), dfCovZ.columns, rotation='vertical')  # Set virus ids as X-axis
 heatMapCovZ = plt.imshow(dfCovZ, cmap=cmap)
 plt.suptitle('Coverage Z-score')
 plt.colorbar(heatMapCovZ, cax)
@@ -138,7 +139,7 @@ plt.show()
 # ERROR RATE
 # Heat map using output values for Error rate
 plt.yticks(np.arange(len(dfErr.index)), dfErr.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfErr.columns)), dfErr.columns, rotation='vertical')  # Set virus names as X-axis
+plt.xticks(np.arange(len(dfErr.columns)), dfErr.columns, rotation='vertical')  # Set virus ids as X-axis
 heatMapErr = plt.imshow(dfErr, cmap=cmap)
 plt.suptitle('Error rate')
 plt.colorbar(heatMapErr, cax)
@@ -148,7 +149,7 @@ plt.show()
 dfErrZ = pd.DataFrame(valErr, index=index, columns=cols)
 dfErrZ = zscore(dfErrZ)
 plt.yticks(np.arange(len(dfErrZ.index)), dfErrZ.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfErrZ.columns)), dfErrZ.columns, rotation='vertical')  # Set virus names as X-axis
+plt.xticks(np.arange(len(dfErrZ.columns)), dfErrZ.columns, rotation='vertical')  # Set virus ids as X-axis
 heatMapErrZ = plt.imshow(dfErrZ, cmap=cmap)
 plt.suptitle('Error rate Z-score')
 plt.colorbar(heatMapErrZ, cax)
@@ -157,7 +158,6 @@ plt.show()
 # CORRELATION
 
 vars = np.column_stack((np.asarray(Abs).astype(np.float), np.asarray(Covs).astype(np.float), np.asarray(Errs).astype(np.float)))
-print vars
 print np.corrcoef(vars, rowvar=False)
 
 fig = plt.figure()
