@@ -1,15 +1,45 @@
 def functionB(sample_file, virus_ids, mean_th=1.0, peak_locov=0.15, peak_hicov=0.15):
+
+	"""
+	Removes mapped sites with unusually high coverage.
+
+	Example plot with peak that should be removed:
+	# sites
+		8|
+		7|                       |
+		6| |                     ||
+		5| ||                   |||
+		4| ||                   |||
+		3| |||                 |||||
+		2| |||||||||||||||||||||||||
+		1|___________________________
+		  0 1 2 3 4 5 6 7 8 9 10 11		coverage
+
+			<--->               <--->
+		peak_locov            peak_hicov
+
+	Parameters
+	----------
+	sample_file : str
+		Location of the virus data file.
+	virus_ids : list
+		List containing virus ids (accession nrs) for the viruses that should be analysed. Viruses not in this list will
+		be excluded from the output and the analysis.
+	mean_th : float, optional
+		Sets multiplier for the mean for determining threshold. If mean(peak) is greater than mean(rest) * mean_th
+		the peak is removed from the data.
+		mean_th > 1 means the peak must be taller before it is removed.
+		mean_th < 1 means shorter peaks are removed.
+	peak_locov : float, optional
+		How many % of the coverage interval a low coverage peak is expected to cover.
+	peak_hicov : float, optional
+		How many % of the coverage interval a high coverage peak is expected to cover.
+	"""
+
 	import gzip
 	import numpy as np
 	from collections import defaultdict
 	import matplotlib.pyplot as plt
-
-	"""
-	Removes maps with unusually high coverage.
-	mean_th sets how much above the mean the last peak must be to be removed.
-	peak_locov sets how much of the coverage interval the low coverage peak is expected to cover.
-	peak_hicov sets how much of the coverage interval the high coverage peak is expected to cover.
-	"""
 
 	# Read mapped nucleotides into a dict of lists containing the number of maps per nuc
 	# As well as saving the locations of each map in the virus genome
