@@ -1,15 +1,16 @@
 from collections import defaultdict
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA as sklearnPCA
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-
 
 """
 Script that produces heat maps from the output file from main.py. 
 """
 
+# Function which calculates Z-score
 def zscore(dataFrame):
 	dataFrame = dataFrame[dataFrame.columns].astype(float)
 	for col in list(dataFrame.columns):
@@ -91,80 +92,89 @@ dfErr = dfErr[dfErr.columns].astype(float)
 # ../../sample_data/Pongo_abelii-A948.mpile.gz 					NaN							4.34
 
 # HEAT MAPS
+#
+# # General color scheme for the heat maps
+# cmap = plt.cm.Greens
+# cmap.set_bad(color='white')
+#
+# # ABUNDANCE
+# # Heat map using output values for Abundance
+# plt.yticks(np.arange(len(dfAbe.index)), dfAbe.index)  # Set sample names as Y-axis
+# plt.xticks(np.arange(len(dfAbe.columns)), dfAbe.columns, rotation='vertical')  # Set virus ids as X-axis
+# ax = plt.gca()  # Get the axes
+# heatMapAbe = plt.imshow(dfAbe, cmap=cmap)
+# divider = make_axes_locatable(ax)  # Adjust the dimensions of the color bar
+# cax = divider.append_axes("right", size="3%", pad=0.05)
+# plt.suptitle('Abundance')
+# plt.colorbar(heatMapAbe, cax)
+# plt.show()
+# # Heat map using z-score for Abundance
+# dfAbe0 = pd.DataFrame(valAbe, index=index, columns=cols)
+# dfAbeZ = zscore(dfAbe0)
+# plt.yticks(np.arange(len(dfAbeZ.index)), dfAbeZ.index)  # Set sample names as Y-axis
+# plt.xticks(np.arange(len(dfAbeZ.columns)), dfAbeZ.columns, rotation='vertical')  # Set virus ids as X-axis
+# heatMapAbeZ = plt.imshow(dfAbeZ, cmap=cmap)
+# plt.suptitle('Abundance Z-score')
+# plt.colorbar(heatMapAbeZ, cax)
+# plt.show()
+#
+# # COVERAGE
+# # Heat map using output values for Coverage
+# plt.yticks(np.arange(len(dfCov.index)), dfCov.index)  # Set sample names as Y-axis
+# plt.xticks(np.arange(len(dfCov.columns)), dfCov.columns, rotation='vertical')  # Set virus ids as X-axis
+# heatMapCov = plt.imshow(dfCov, cmap=cmap)
+# plt.suptitle('Coverage')
+# plt.colorbar(heatMapCov, cax)
+# plt.show()
+#
+# # Heat map using z-score for Coverage
+# dfCov0 = pd.DataFrame(valCov, index=index, columns=cols)
+# dfCovZ = zscore(dfCov0)
+# plt.yticks(np.arange(len(dfCovZ.index)), dfCovZ.index)  # Set sample names as Y-axis
+# plt.xticks(np.arange(len(dfCovZ.columns)), dfCovZ.columns, rotation='vertical')  # Set virus ids as X-axis
+# heatMapCovZ = plt.imshow(dfCovZ, cmap=cmap)
+# plt.suptitle('Coverage Z-score')
+# plt.colorbar(heatMapCovZ, cax)
+# plt.show()
+#
+# # ERROR RATE
+# # Heat map using output values for Error rate
+# plt.yticks(np.arange(len(dfErr.index)), dfErr.index)  # Set sample names as Y-axis
+# plt.xticks(np.arange(len(dfErr.columns)), dfErr.columns, rotation='vertical')  # Set virus ids as X-axis
+# heatMapErr = plt.imshow(dfErr, cmap=cmap)
+# plt.suptitle('Error rate')
+# plt.colorbar(heatMapErr, cax)
+# plt.show()
+#
+# # Heat map using z-score for Error rate
+# dfErr0 = pd.DataFrame(valErr, index=index, columns=cols)
+# dfErrZ = zscore(dfErr0)
+# plt.yticks(np.arange(len(dfErrZ.index)), dfErrZ.index)  # Set sample names as Y-axis
+# plt.xticks(np.arange(len(dfErrZ.columns)), dfErrZ.columns, rotation='vertical')  # Set virus ids as X-axis
+# heatMapErrZ = plt.imshow(dfErrZ, cmap=cmap)
+# plt.suptitle('Error rate Z-score')
+# plt.colorbar(heatMapErrZ, cax)
+# plt.show()
+#
+# # CORRELATION
+#
+# vars = np.column_stack((np.asarray(Abs).astype(np.float), np.asarray(Covs).astype(np.float), np.asarray(Errs).astype(np.float)))
+# print np.corrcoef(vars, rowvar=False)
+#
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# ax.scatter(np.asarray(Abs).astype(np.float), np.asarray(Covs).astype(np.float), np.asarray(Errs).astype(np.float), c='r')
+# ax.set_xlabel('Abundance')
+# ax.set_ylabel('Coverage')
+# ax.set_zlabel('Error Rate')
+# plt.show()
 
-# General color scheme for the heat maps
-cmap = plt.cm.Greens
-cmap.set_bad(color='white')
+# for key in virus:
+# 	print key, virus[key][0][0], virus[key][0][1], virus[key][0][2], virus[key][0][3]
 
-# ABUNDANCE
-# Heat map using output values for Abundance
-plt.yticks(np.arange(len(dfAbe.index)), dfAbe.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfAbe.columns)), dfAbe.columns, rotation='vertical')  # Set virus ids as X-axis
-ax = plt.gca()  # Get the axes
-heatMapAbe = plt.imshow(dfAbe, cmap=cmap)
-divider = make_axes_locatable(ax)  # Adjust the dimensions of the color bar
-cax = divider.append_axes("right", size="3%", pad=0.05)
-plt.suptitle('Abundance')
-plt.colorbar(heatMapAbe, cax)
-plt.show()
-# Heat map using z-score for Abundance
-dfAbeZ = pd.DataFrame(valAbe, index=index, columns=cols)
-dfAbeZ = zscore(dfAbeZ)
-plt.yticks(np.arange(len(dfAbeZ.index)), dfAbeZ.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfAbeZ.columns)), dfAbeZ.columns, rotation='vertical')  # Set virus ids as X-axis
-heatMapAbeZ = plt.imshow(dfAbeZ, cmap=cmap)
-plt.suptitle('Abundance Z-score')
-plt.colorbar(heatMapAbeZ, cax)
-plt.show()
+# PCA
 
-# COVERAGE
-# Heat map using output values for Coverage
-plt.yticks(np.arange(len(dfCov.index)), dfCov.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfCov.columns)), dfCov.columns, rotation='vertical')  # Set virus ids as X-axis
-heatMapCov = plt.imshow(dfCov, cmap=cmap)
-plt.suptitle('Coverage')
-plt.colorbar(heatMapCov, cax)
-plt.show()
-
-# Heat map using z-score for Coverage
-dfCovZ = pd.DataFrame(valCov, index=index, columns=cols)
-dfCovZ = zscore(dfCovZ)
-plt.yticks(np.arange(len(dfCovZ.index)), dfCovZ.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfCovZ.columns)), dfCovZ.columns, rotation='vertical')  # Set virus ids as X-axis
-heatMapCovZ = plt.imshow(dfCovZ, cmap=cmap)
-plt.suptitle('Coverage Z-score')
-plt.colorbar(heatMapCovZ, cax)
-plt.show()
-
-# ERROR RATE
-# Heat map using output values for Error rate
-plt.yticks(np.arange(len(dfErr.index)), dfErr.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfErr.columns)), dfErr.columns, rotation='vertical')  # Set virus ids as X-axis
-heatMapErr = plt.imshow(dfErr, cmap=cmap)
-plt.suptitle('Error rate')
-plt.colorbar(heatMapErr, cax)
-plt.show()
-
-# Heat map using z-score for Error rate
-dfErrZ = pd.DataFrame(valErr, index=index, columns=cols)
-dfErrZ = zscore(dfErrZ)
-plt.yticks(np.arange(len(dfErrZ.index)), dfErrZ.index)  # Set sample names as Y-axis
-plt.xticks(np.arange(len(dfErrZ.columns)), dfErrZ.columns, rotation='vertical')  # Set virus ids as X-axis
-heatMapErrZ = plt.imshow(dfErrZ, cmap=cmap)
-plt.suptitle('Error rate Z-score')
-plt.colorbar(heatMapErrZ, cax)
-plt.show()
-
-# CORRELATION
-
-vars = np.column_stack((np.asarray(Abs).astype(np.float), np.asarray(Covs).astype(np.float), np.asarray(Errs).astype(np.float)))
-print np.corrcoef(vars, rowvar=False)
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(np.asarray(Abs).astype(np.float), np.asarray(Covs).astype(np.float), np.asarray(Errs).astype(np.float), c='r')
-ax.set_xlabel('Abundance')
-ax.set_ylabel('Coverage')
-ax.set_zlabel('Error Rate')
-plt.show()
+virusList = []
+for key in virus:
+	virusList.append((virus[key][0][1],virus[key][0][2],virus[key][0][3],virus[key][0][0]))
 
