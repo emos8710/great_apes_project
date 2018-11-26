@@ -34,12 +34,19 @@ def functionB(sample_file, virus_ids, mean_th=1.0, peak_locov=0.15, peak_hicov=0
 		How many % of the coverage interval a low coverage peak is expected to cover.
 	peak_hicov : float, optional
 		How many % of the coverage interval a high coverage peak is expected to cover.
+
+	Returns
+	-------
+	dict
+		Dictionary with virus ID's as keys. The values are one dict per virus containing the keys trim_map_loc,
+		trim_ref_nuc and trim_map_nuc. The values of these dicts are lists with the mapping locations, the reference
+		nucleotide and the mapped nucleotides respectively.
 	"""
 
 	import gzip
 	import numpy as np
 	from collections import defaultdict
-	import matplotlib.pyplot as plt
+	# import matplotlib.pyplot as plt
 
 	# Read mapped nucleotides into a dict of lists containing the number of maps per nuc
 	# As well as saving the locations of each map in the virus genome
