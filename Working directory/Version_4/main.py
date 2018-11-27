@@ -1,8 +1,8 @@
 import gzip
 import os
 import csv
-from map_percent_filter_v3 import map_percent_filter
-from function_B_v3 import functionB
+from map_percent_filter_v4 import map_percent_filter
+from function_B_v4 import functionB
 
 MappedThreshold = 0.1
 
@@ -51,4 +51,16 @@ for i in range(len(files)):
 	for key in Cov_result:
 		removed_sites[key] = Cov_result[key]['nr_removed_sites']
 
-	MPF_result_2 O map_percent_filter(Cov_result['trim_map_nuc'])
+	input_MPF = {}
+	for key in Cov_result:
+		input_MPF[key] = len(Cov_result[key]['trim_map_nuc'])
+
+	MPF_result_2 = map_percent_filter(input_MPF, virus_size_file, removed_sites=removed_sites)
+	MPF_result_3 = map_percent_filter(input_MPF, virus_size_file)
+
+	compare = {}
+	for key in MPF_result_2:
+		if MPF_result_2[key] != MPF_result_3[key]:
+			compare[key] = [MPF_result_2[key], MPF_result_3[key]]
+
+	print compare

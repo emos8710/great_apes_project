@@ -15,7 +15,9 @@ def map_percent_filter(virus_data, virus_size_file, threshold=0.0, removed_sites
 		Minimum mapped threshold. Must be in range 0.0 - 1.0.
 		Value of 0.0 returns all viruses (default) and 1.0 returns no viruses.
 	removed_sites : dict
-		Number of sites removed in previous filtering steps for each virus. Virus ID as key, nr of sites as value.
+		Number of sites removed in previous filtering steps for each virus. Virus ID as key, nr of sites as value. These
+		sites are subtracted from the total virus genome length.
+		map_percent = mapped / (virus_size - removed_sites)
 
 	Returns
 	-------
@@ -49,7 +51,8 @@ def map_percent_filter(virus_data, virus_size_file, threshold=0.0, removed_sites
 	# Remove removed sites from virus lengths
 	if isinstance(removed_sites, dict):
 		for key in virus_sizes:
-			virus_sizes[key] = virus_sizes[key] - removed_sites[key]
+			if key in removed_sites:
+				virus_sizes[key] = virus_sizes[key] - removed_sites[key]
 
 	mapped_over_th = {}
 

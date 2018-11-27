@@ -39,8 +39,8 @@ def functionB(sample_file, virus_ids, mean_th=1.0, peak_locov=0.15, peak_hicov=0
 	-------
 	dict
 		Dictionary with virus ID's as keys. The values are one dict per virus containing the keys trim_map_loc,
-		trim_ref_nuc and trim_map_nuc. The values of these dicts are lists with the mapping locations, the reference
-		nucleotide and the mapped nucleotides respectively.
+		trim_ref_nuc, trim_map_nuc and nr_removed_sites. The values of these dicts are lists with the mapping locations,
+		the reference nucleotide, the mapped nucleotides and the number of sites that have been removed respectively.
 	"""
 
 	import gzip
