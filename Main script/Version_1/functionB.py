@@ -4,7 +4,7 @@ def functionB(sample_file):
 	import numpy as np
 	# Output: Dict with virus codes as key, value = [%unmapped, mean, std, good]
 
-	virus_size_file = "../virus_data/virus_genome_sizes.tsv"
+	virus_size_file = "../../virus_data/virus_genome_sizes.tsv"
 
 	# Read virus sizes into dict
 	virus_sizes = {}
