@@ -1,4 +1,4 @@
-def map_percent_filter(virus_data, virus_size_file, threshold=0.0):
+def map_percent_filter(virus_data, virus_size_file, threshold=0.0, removed_sites=None):
 
 	"""
 	Calculates how much of the reference virus has been mapped to.
@@ -14,6 +14,8 @@ def map_percent_filter(virus_data, virus_size_file, threshold=0.0):
 	threshold : float, optional
 		Minimum mapped threshold. Must be in range 0.0 - 1.0.
 		Value of 0.0 returns all viruses (default) and 1.0 returns no viruses.
+	removed_sites : dict
+		Number of sites removed in previous filtering steps for each virus. Virus ID as key, nr of sites as value.
 
 	Returns
 	-------
@@ -43,6 +45,11 @@ def map_percent_filter(virus_data, virus_size_file, threshold=0.0):
 		for line in f1:
 			(seqid, size) = line.strip().split(' ')
 			virus_sizes[seqid] = int(size)
+
+	# Remove removed sites from virus lengths
+	if isinstance(removed_sites, dict):
+		for key in virus_sizes:
+			virus_sizes[key] = virus_sizes[key] - removed_sites[key]
 
 	mapped_over_th = {}
 
