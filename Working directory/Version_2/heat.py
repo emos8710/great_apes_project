@@ -31,13 +31,13 @@ with open(inputFile) as f:
 	firstLine = f.readline()  # Don't include header
 	for line in f:
 		(fileName, virusId, virusName, abundance, coverage, errorRate) = line.strip().split("\t")
-		# if (virusId != 'NC_001422.1') & (virusId != 'NC_022518.1') & (virusId != 'NC_009334.1') & (virusId != 'NC_007605.1') & (virusId != 'NC_001604.1'):
-		data[fileName].append((virusId, abundance, coverage, errorRate))
-		virus[virusId].append((fileName, abundance, coverage, errorRate))
-		virusLabel.add(virusId)
-		Abs.append(abundance)
-		Covs.append(coverage)
-		Errs.append(errorRate)
+		if (virusId != 'NC_001422.1') & (virusId != 'NC_022518.1') & (virusId != 'NC_009334.1') & (virusId != 'NC_007605.1') & (virusId != 'NC_001604.1'):
+			data[fileName].append((virusId, abundance, coverage, errorRate))
+			virus[virusId].append((fileName, abundance, coverage, errorRate))
+			virusLabel.add(virusId)
+			Abs.append(abundance)
+			Covs.append(coverage)
+			Errs.append(errorRate)
 
 outputAbe = defaultdict(list)
 outputCov = defaultdict(list)
@@ -46,27 +46,27 @@ outputPCA = defaultdict(list)
 names = []
 
 for sample in data:
-	# if (sample != 'sample_data/Pan_troglodytes_schweinfurthii-Mgbadolite.mpile.gz') & (sample != 'sample_data/Gorilla_beringei_graueri-A929_Kaisi.mpile.gz') & ( sample != 'sample_data/Pongo_pygmaeus-A946.mpile.gz'):
-	for key,value in virus.items():
-			listId = [i[0] for i in value]
-			listAbe = [j[1] for j in value]
-			listCov = [j[2] for j in value]
-			listErr = [j[3] for j in value]
-			if any(elem == sample for elem in listId):
-				ind = listId.index(sample)
-				outputAbe[sample].append(listAbe[ind])
-				outputCov[sample].append(listCov[ind])
-				outputErr[sample].append(listErr[ind])
-				outputPCA[sample].append(listAbe[ind])
-				outputPCA[sample].append(listCov[ind])
-				outputPCA[sample].append(listErr[ind])
-			else:
-				outputAbe[sample].append(0)  # If the individual doesn't have the virus add a 0 instead
-				outputCov[sample].append(0)
-				outputErr[sample].append(0)
-				outputPCA[sample].append(0)
-				outputPCA[sample].append(0)
-				outputPCA[sample].append(0)
+	if (sample != 'sample_data/Pan_troglodytes_schweinfurthii-Mgbadolite.mpile.gz') & (sample != 'sample_data/Gorilla_beringei_graueri-A929_Kaisi.mpile.gz') & ( sample != 'sample_data/Pongo_pygmaeus-A946.mpile.gz'):
+		for key,value in virus.items():
+				listId = [i[0] for i in value]
+				listAbe = [j[1] for j in value]
+				listCov = [j[2] for j in value]
+				listErr = [j[3] for j in value]
+				if any(elem == sample for elem in listId):
+					ind = listId.index(sample)
+					outputAbe[sample].append(listAbe[ind])
+					outputCov[sample].append(listCov[ind])
+					outputErr[sample].append(listErr[ind])
+					outputPCA[sample].append(listAbe[ind])
+					outputPCA[sample].append(listCov[ind])
+					outputPCA[sample].append(listErr[ind])
+				else:
+					outputAbe[sample].append(0)  # If the individual doesn't have the virus add a 0 instead
+					outputCov[sample].append(0)
+					outputErr[sample].append(0)
+					outputPCA[sample].append(0)
+					outputPCA[sample].append(0)
+					outputPCA[sample].append(0)
 
 # ABUNDANCE
 # Create pandas DataFrame for Abundance
