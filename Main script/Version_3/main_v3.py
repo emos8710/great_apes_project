@@ -4,7 +4,7 @@ import csv
 import pandas as pd
 from collections import defaultdict
 from map_percent_filter_v3 import map_percent_filter
-from Incoherence_filter_SW import incoherence_filter
+from Incoherence_filter_SW import incoherence_filter_sw
 from functionA_v2 import functionA
 from function_B_v3 import functionB
 from functionC_v2 import functionC
@@ -69,8 +69,9 @@ for i in range(len(files)):
 	# Filter the data again, this time based on incoherence in the mapping
 	print 'Trimming sites with incoherent mapping. Threshold: ', incoherenceThreshold
 
-	inc_filtered = incoherence_filter(Cov_result, incoherenceThreshold, smooth, sliding_windowsize, jumpSize)
-"""
+	inc_filtered = incoherence_filter_sw(Cov_result, incoherenceThreshold, smooth, sliding_windowsize, jumpSize)
+
+
 	# Prepare output from filtering to be input to the functions A, B and C
 	inputA = []
 	inputB = {}
@@ -101,4 +102,3 @@ for i in range(len(files)):
 niceOutput = pd.read_csv('test_output/output.tsv', sep='\t')
 niceOutput.to_csv("test_output/output_excel_file.xls", sep='\t', index=False)
 
-"""

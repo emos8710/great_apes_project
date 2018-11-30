@@ -7,8 +7,8 @@ import numpy as np
 # and plots incoherence of mapping
 
 incoherenceThreshold = 0.07
-incoherenceThresholdSmooth = 0.02
-binsize = 50
+incoherenceThresholdSmooth = 0.03
+binsize = 30
 jumpSize = 100
 
 
@@ -49,7 +49,7 @@ for i in range(len(files)):  # go through all files and call functions A, B and 
     mismatches = {}
     errorRate = {}
     for x in viruses:
-        if x == 'NC_029996.1':
+        if x == 'NC_022518.1':
             counter = 0
             misnuc = 0
             Fractions = []
@@ -156,21 +156,19 @@ for i in range(len(files)):  # go through all files and call functions A, B and 
                     newPos.append(pointer)
                     numlengths.append(len(nums))
                     pointer = pointer + 1
-            print bins
             deleteSites = []
+            print numlengths
+            print bins
+            print newPos
+
             for b in range(len(bins)):  # go through all the bins
-                if bins[b] > incoherenceThreshold:  # Check if bin passes incoherence test
+                pas = 1
+                if bins[b] > incoherenceThresholdSmooth:  # Check if bin passes incoherence test
+                    pas = 0
                     for d in range(numlengths[b]):
                         deleteSites.append(int(newPos[b]) + d)  # save the indices we want to delete
-            print len(deleteSites)
+                print 'bin', bins[b], 'pass', pas
             deleteSites = list(set(deleteSites))  # get rid of duplicate indices
-            print bins
-            print deleteSites
-            print 'lendelsites', len(deleteSites)
-            print 'lenBins', len(bins)
-            print 'lenNewpos', len(newPos)
-            print 'lenPos', len(Positions)
-            print 'Numlenghts', numlengths
             for y in range(len(Positions)):
                 if y not in deleteSites:
                     FilteredPositionsSmooth.append(Positions[y])

@@ -11,11 +11,11 @@ from functionC_v2 import functionC
 
 
 MappedThreshold = 0.1
-incoherenceThreshold = 0.07
+incoherenceThreshold = 0.03
 ErrorRateThreshold = 0.3
 AbundanceThreshold = 10
 smooth = 1  # put 1 if you want smoothed filtering, 0 if not
-binsize = 3
+binsize = 50
 jumpSize = 100
 
 # Create output file. OVERWRITES PREVIOUS OUTPUT FILE!
