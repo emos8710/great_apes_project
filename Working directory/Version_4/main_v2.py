@@ -93,7 +93,7 @@ for i in range(len(files)):
 		for key in Abundance:  # Go through all virus IDs, should be same from all functions from the same file
 			if Abundance.get(key) > AbundanceThreshold and Mapped.get(key) > MappedThreshold and \
 					ErrorRate.get(key) < ErrorRateThreshold:
-				tsv_writer.writerow([files[i].name, key, virus[key],
+				tsv_writer.writerow([files[i].name.split('.')[0].split('/')[1], key, virus[key],
 									float(round(Abundance.get(key), 2)),
 									float(round(Mapped.get(key), 3)),
 									float(round(ErrorRate.get(key), 3))])
