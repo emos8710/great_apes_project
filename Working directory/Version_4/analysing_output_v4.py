@@ -20,6 +20,7 @@ def zscore(dataFrame):
 
 inputFile = '../../test_output/output.tsv'
 sampleStats = '../../test_output/sample_stats_complete.xlsx'
+statsColumn = 'Birth origin'
 data = defaultdict(list)
 virus = defaultdict(list)
 virusLabel = set()
@@ -27,6 +28,8 @@ sampleNames = []
 Abs = []
 Covs = []
 Errs = []
+allStats = pd.read_excel(sampleStats)
+stats = allStats[['FileName',statsColumn]]
 
 with open(inputFile) as f:
 	firstLine = f.readline()  # Don't include header
@@ -60,15 +63,14 @@ for sample in data:
 					outputCov[sample].append(listCov[ind])
 					outputErr[sample].append(listErr[ind])
 					outputPCA[sample].append(listAbe[ind])
-					outputPCA[sample].append(listCov[ind])
-					outputPCA[sample].append(listErr[ind])
 				else:
 					outputAbe[sample].append(0)  # If the individual doesn't have the virus add a 0 instead
 					outputCov[sample].append(0)
 					outputErr[sample].append(0)
 					outputPCA[sample].append(0)
-					outputPCA[sample].append(0)
-					outputPCA[sample].append(0)
+
+# for name in sampleNames:
+# 	print stats.loc[stats.itemsets == (name,), 'Source']
 
 # ABUNDANCE
 # Create pandas DataFrame for Abundance
@@ -197,24 +199,34 @@ ax.set_ylabel('Coverage')
 ax.set_zlabel('Error Rate')
 
 # PCA
-stats = pd.read_excel(sampleStats)
 
-#
-# virusList = []
-# for key in virus:
-# 	virusList.append((virus[key][0][1],virus[key][0][2],virus[key][0][3],virus[key][0][0]))
-#
-# outPCA = pd.DataFrame.from_dict(outputPCA, orient='index')  # Convert the dictionary to a DataFrame
-# index = outPCA.index  # Sample rows
-# valPCA = outPCA.values
-# dfPCA = pd.DataFrame(valPCA, index=index)
-# dfPCA = dfPCA[dfPCA.columns].astype(float)
-# # print dfPCA.iloc[[93]]
-# X = StandardScaler().fit_transform(dfPCA)
-#
-# pca = PCA(n_components=2)
-# principalComponents = pca.fit_transform(X)
-# principalDf = pd.DataFrame(data=principalComponents, columns=['principal component 1', 'principal component 2'])
+virusList = []
+for key in virus:
+	virusList.append((virus[key][0][1],virus[key][0][2],virus[key][0][3],virus[key][0][0]))
+
+outPCA = pd.DataFrame.from_dict(outputPCA, orient='index')  # Convert the dictionary to a DataFrame
+index = outPCA.index  # Sample rows
+valPCA = outPCA.values
+dfPCA = pd.DataFrame(valPCA, index=index)
+dfPCA = dfPCA[dfPCA.columns].astype(float)
+dfStats = pd.DataFrame(index=dfPCA.index, columns=[statsColumn])
+
+for index in dfPCA.index.tolist():
+	for name in stats['FileName']:
+		if index == name:
+			print dfStats
+			# outStats.append(stats.loc[stats['FileName'] == name])
+# 			print stats.loc[stats['FileName'] == name]
+# 			dfStats[statsColumn].append(stats.loc[stats['FileName'] == name])
+print dfStats
+
+# print dfPCA.iloc[[93]]
+X = StandardScaler().fit_transform(dfPCA)
+
+
+pca = PCA(n_components=2)
+principalComponents = pca.fit_transform(X)
+principalDf = pd.DataFrame(data=principalComponents, columns=['principal component 1', 'principal component 2'])
 # # print principalDf.loc[principalDf['principal component 2'] == max(principalDf['principal component 2'])]
 # # print principalDf.idxmax()
 # # print principalDf['principal component 2'][76]
