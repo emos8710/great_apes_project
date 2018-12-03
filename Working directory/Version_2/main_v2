@@ -11,11 +11,11 @@ from functionC_v2 import functionC
 
 
 MappedThreshold = 0.1
-incoherenceThreshold = 0.03
+incoherenceThreshold = 0.07
 ErrorRateThreshold = 0.3
-AbundanceThreshold = 10
-smooth = 1  # put 1 if you want smoothed filtering, 0 if not
-binsize = 50
+AbundanceThreshold = 7
+smooth = 0  # put 1 if you want smoothed filtering, 0 if not
+binsize = 3
 jumpSize = 100
 
 # Create output file. OVERWRITES PREVIOUS OUTPUT FILE!
@@ -100,4 +100,3 @@ for i in range(len(files)):
 
 niceOutput = pd.read_csv('test_output/output.tsv', sep='\t')
 niceOutput.to_csv("test_output/output_excel_file.xls", sep='\t', index=False)
-
