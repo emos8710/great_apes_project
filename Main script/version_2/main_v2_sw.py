@@ -4,17 +4,17 @@ import csv
 import pandas as pd
 from collections import defaultdict
 from map_percent_filter_v3 import map_percent_filter
-from Incoherence_filter_SW import Incoherence_filter_sw
+from Incoherence_filter import Incoherence_filter
 from functionA_v2 import functionA
-from function_B_v4 import functionB
+from function_B_v3 import functionB
 from functionC_v2 import functionC
 
 
 MappedThreshold = 0.1
 incoherenceThreshold = 0.07
 ErrorRateThreshold = 0.3
-AbundanceThreshold = 10
-smooth = 1  # put 1 if you want smoothed filtering, 0 if not
+AbundanceThreshold = 7
+smooth = 0  # put 1 if you want smoothed filtering, 0 if not
 binsize = 3
 jumpSize = 100
 
@@ -69,7 +69,7 @@ for i in range(len(files)):
 	# Filter the data again, this time based on incoherence in the mapping
 	print 'Trimming sites with incoherent mapping. Threshold: ', incoherenceThreshold
 
-	inc_filtered = Incoherence_filter_sw(Cov_result, incoherenceThreshold, smooth, binsize, jumpSize)
+	inc_filtered = Incoherence_filter(Cov_result, incoherenceThreshold, smooth, binsize, jumpSize)
 
 	# Prepare output from filtering to be input to the functions A, B and C
 	inputA = []
@@ -93,7 +93,7 @@ for i in range(len(files)):
 		for key in Abundance:  # Go through all virus IDs, should be same from all functions from the same file
 			if Abundance.get(key) > AbundanceThreshold and Mapped.get(key) > MappedThreshold and \
 					ErrorRate.get(key) < ErrorRateThreshold:
-				tsv_writer.writerow([files[i].name.split('.')[0].split('/')[1], key, virus[key],
+				tsv_writer.writerow([files[i].name, key, virus[key],
 									float(round(Abundance.get(key), 2)),
 									float(round(Mapped.get(key), 3)),
 									float(round(ErrorRate.get(key), 3))])
