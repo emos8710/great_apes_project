@@ -18,7 +18,7 @@ def zscore(dataFrame):
 		dataFrame[col] = (dataFrame[col] - dataFrame[col].mean())/dataFrame[col].std(ddof=1)
 	return dataFrame
 
-inputFile = 'test_output/output.tsv'
+inputFile = 'test_output/output2.tsv'
 sampleStats = 'test_output/sample_stats_complete.xlsx'
 statsColumn = 'Species'
 data = defaultdict(list)
@@ -270,15 +270,15 @@ principalDf = pd.DataFrame(data=principalComponents, columns=['principal compone
 finalDf = pd.concat([principalDf, dfStats], axis=1, sort=False)
 # print finalDf['principal component 2']
 print principalDf.loc[principalDf['principal component 2'] == max(principalDf['principal component 2'])]
-# # print principalDf.idxmax()
-# # print principalDf['principal component 2'][76]
+# print principalDf.idxmax()
+# print principalDf['principal component 2'][76]
 fig = plt.figure(2,figsize = (8,8))
 ax = fig.add_subplot(1,1,1)
 ax.set_xlabel('Principal Component 1', fontsize = 15)
 ax.set_ylabel('Principal Component 2', fontsize = 15)
 ax.set_title('2 component PCA', fontsize= 20)
 targets = ['Gorilla', 'Homo sapiens', 'Pan troglodytes', 'Pan paniscus', 'Pongo']
-colors = ['r','g','b','m','purple','c']
+colors = ['r','g','b','m','y']
 for target, color in zip(targets,colors):
     indicesToKeep = finalDf[statsColumn] == target
     ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1']
