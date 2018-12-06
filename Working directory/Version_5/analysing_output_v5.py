@@ -8,51 +8,51 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 """
-Script that produces heat maps, 3D scatter-plots and PCA using the output file from main.py. 
+Script that produces heat maps, 3D scatter plot and PCA using the output file from main.py and a excel file 
+which contains sample statistics (sample_stats.xlsx). The visualization is done by combining the four output columns, 
+Abundance, Mapped Percent, Error rate and Procent Removed,
+by multiplying them with each other. 
 """
 
-# Function which calculates Z-score
-def zscore(dataFrame):
-	dataFrame = dataFrame[dataFrame.columns].astype(float)
-	for col in list(dataFrame.columns):
-		dataFrame[col] = (dataFrame[col] - dataFrame[col].mean())/dataFrame[col].std(ddof=1)
-	return dataFrame
-
-inputFile = 'test_output/output2.tsv'
-sampleStats = 'test_output/sample_stats_complete.xlsx'
-statsColumn = 'Species'
+inputFile = 'test_output/output.tsv'
 data = defaultdict(list)
 virus = defaultdict(list)
 virusLabel = set()
 sampleNames = set()
-Abs = []
-Covs = []
-Errs = []
+
+sampleStats = 'test_output/sample_stats_complete2.xlsx'
+statsColumn = 'Species' # Specify which column should be used for PCA
 allStats = pd.read_excel(sampleStats)
 stats = allStats[['FileName',statsColumn]]
+
+Abn = []  # Store for correlation test and 3D scatter plot
+Cov = []
+Err = []
+
+# Highly present and uninteresting virus to filter away
+virus1 = 'NC_001422.1'  # phiX174
+virus2 = 'NC_022518.1'  # Human endogenous retrovirus K113
+virus3 = 'NC_009334.1'  # Human herpesvirus 4
+virus4 = 'NC_007605.1'  # Human gammaherpesvirus 4
+virus5 = 'NC_001604.1'  # Enterobacteria phage T7
 
 with open(inputFile) as f:
 	firstLine = f.readline()  # Don't include header
 	for line in f:
 		(fileName, virusId, virusName, abundance, coverage, errorRate, percentRemoved) = line.strip().split("\t")
-		# if (virusId != 'NC_001422.1') & (virusId != 'NC_022518.1') & (virusId != 'NC_009334.1') & (virusId != 'NC_007605.1') & (virusId != 'NC_001604.1'):
-		data[fileName].append((virusId, abundance, coverage, errorRate, percentRemoved))
-		virus[virusId].append((fileName, abundance, coverage, errorRate, percentRemoved))
-		virusLabel.add(virusId)
-		Abs.append(abundance)
-		Covs.append(coverage)
-		Errs.append(errorRate)
-		sampleNames.add(fileName)
+		if (virusId != virus1) & (virusId != virus2) & (virusId != virus3) & (virusId != virus4) & (virusId != virus):
+			data[fileName].append((virusId, abundance, coverage, errorRate, percentRemoved))
+			virus[virusId].append((fileName, abundance, coverage, errorRate, percentRemoved))
+			virusLabel.add(virusId)
+			sampleNames.add(fileName)
+			Abn.append(abundance)
+			Cov.append(coverage)
+			Err.append(errorRate)
 
-outputAbe = defaultdict(list)
-outputCov = defaultdict(list)
-outputErr = defaultdict(list)
-outputPercentRemoved = defaultdict(list)
 outputScore = defaultdict(list)
 names = []
 
 for sample in data:
-	# if (sample != 'sample_data/Pan_troglodytes_troglodytes-13656_Brigitte.mpile.gz'):
 		for key,value in virus.items():
 				listId = [i[0] for i in value]
 				listAbe = [j[1] for j in value]
@@ -61,33 +61,26 @@ for sample in data:
 				listPerRem = [j[4] for j in value]
 				if any(elem == sample for elem in listId):
 					ind = listId.index(sample)
-					outputAbe[sample].append(listAbe[ind])
-					outputCov[sample].append(listCov[ind])
-					outputErr[sample].append(listErr[ind])
-					outputPercentRemoved[sample].append(listPerRem[ind])
-					outputScore[sample].append(round(float(listAbe[ind])*float(listCov[ind])*(1-float(listErr[ind]))*(1-float(listPerRem[ind])),4))
+					outputScore[sample].append(round(float(listAbe[ind])*float(listCov[ind])* # Multiply values to make a Super score
+										(1-float(listErr[ind]))*(1-float(listPerRem[ind])),4))
 				else:
-					outputAbe[sample].append(0)  # If the individual doesn't have the virus add a 0 instead
-					outputCov[sample].append(0)
-					outputErr[sample].append(0)
-					outputScore[sample].append(0)
+					outputScore[sample].append(0)  # If the individual doesn't have the virus a zero is added
 
-# for name in sampleNames:
-# 	print stats.loc[stats.itemsets == (name,), 'Source']
-
-# SCORE
+# SUPER SCORE
 # Create pandas DataFrame for Super score
 outScore = pd.DataFrame.from_dict(outputScore, orient='index', columns=virusLabel)  # Convert the dictionary to a DataFrame
 index = outScore.index  # Sample rows
 cols = list(virusLabel)  # Virus columns
 valScore = outScore.values
-valScore_NaN = np.ma.masked_where(valScore == 0, valScore)  # Abundance == 0 is replaced by NaN
+valScore_NaN = np.ma.masked_where(valScore == 0, valScore)  # Score == 0 is replaced by NaN
 dfScore = pd.DataFrame(valScore_NaN, index=index, columns=cols)
 dfScore = dfScore[dfScore.columns].astype(float).sort_index()
-# print dfScore
-#
-# dfScoreBinary = pd.DataFrame(valScore, index=index, columns=cols)
-# dfScoreBinary = dfScoreBinary[dfScoreBinary.columns].astype(float).sort_index()
+
+dfScoreBinary = pd.DataFrame(valScore, index=index, columns=cols)  # Score == 0 kept as 0
+dfScoreBinary = dfScoreBinary[dfScoreBinary.columns].astype(float).sort_index()
+
+######## NOT DONE
+
 # Zero = dfScoreBinary.where(dfScoreBinary != 0)
 # print Zero
 # for ids in virusLabel:
@@ -98,30 +91,7 @@ dfScore = dfScore[dfScore.columns].astype(float).sort_index()
 # 		else:
 # 			dfScoreBinary[index] = 1
 # print dfScoreBinary
-
-# ABUNDANCE
-# Create pandas DataFrame for Abundance
-outAbe = pd.DataFrame.from_dict(outputAbe, orient='index', columns=virusLabel)  # Convert the dictionary to a DataFrame
-index = outAbe.index  # Sample rows
-cols = list(virusLabel)  # Virus columns
-valAbe = outAbe.values
-valAbe_NaN = np.ma.masked_where(valAbe == 0, valAbe)  # Abundance == 0 is replaced by NaN
-dfAbe = pd.DataFrame(valAbe_NaN, index=index, columns=cols)
-dfAbe = dfAbe[dfAbe.columns].astype(float)
-# COVERAGE
-# Create pandas DataFrame for Coverage
-outCov = pd.DataFrame.from_dict(outputCov, orient='index', columns=virusLabel)  # Convert the dictionary to a DataFrame
-valCov = outCov.values
-valCov_NaN = np.ma.masked_where(valCov == 0, valCov)  # Coverage == 0 is replaced by NaN
-dfCov = pd.DataFrame(valCov_NaN, index=index, columns=cols)
-dfCov = dfCov[dfCov.columns].astype(float)
-# # ERROR RATE
-# # Create pandas DataFrame for Coverage
-# outErr = pd.DataFrame.from_dict(outputErr, orient='index', columns=virusLabel)  # Convert the dictionary to a DataFrame
-# valErr = outErr.values
-# valErr_NaN = np.ma.masked_where(valErr == 0, valErr)  # Error rate == 0 is replaced by NaN
-# dfErr = pd.DataFrame(valErr_NaN, index=index, columns=cols)
-# dfErr = dfErr[dfErr.columns].astype(float)
+########
 
 # The DataFrames will have the format:
 #                                                    Rose rosette emaravirus  ...   Bwamba orthobunyavirus
@@ -137,18 +107,6 @@ dfCov = dfCov[dfCov.columns].astype(float)
 # General color scheme for the heat maps
 cmap = plt.cm.Greens
 cmap.set_bad(color='white')
-#
-# # ABUNDANCE
-# # Heat map using output values for Abundance
-# plt.figure(1)
-# plt.yticks(np.arange(len(dfAbe.index)), dfAbe.index)  # Set sample names as Y-axis
-# plt.xticks(np.arange(len(dfAbe.columns)), dfAbe.columns, rotation='vertical')  # Set virus ids as X-axis
-# ax = plt.gca()  # Get the axes
-# heatMapAbe = plt.imshow(dfAbe, cmap=cmap)
-# divider = make_axes_locatable(ax)  # Adjust the dimensions of the color bar
-# cax = divider.append_axes("right", size="3%", pad=0.05)
-# plt.suptitle('Abundance')
-# plt.colorbar(heatMapAbe, cax)
 
 # SUPER SCORE
 plt.figure(1, figsize = (8,8))
@@ -161,126 +119,49 @@ cax = divider.append_axes("right", size="3%", pad=0.05)
 plt.suptitle('Super Score')
 plt.colorbar(heatMapScore, cax)
 
-#
-# # Heat map using z-score for Abundance
-# dfAbe0 = pd.DataFrame(valAbe, index=index, columns=cols)
-# dfAbeZ = zscore(dfAbe0)
-# plt.figure(2)
-# plt.yticks(np.arange(len(dfAbeZ.index)), dfAbeZ.index)  # Set sample names as Y-axis
-# plt.xticks(np.arange(len(dfAbeZ.columns)), dfAbeZ.columns, rotation='vertical')  # Set virus ids as X-axis
-# ax = plt.gca()  # Get the axes
-# heatMapAbeZ = plt.imshow(dfAbeZ, cmap=cmap)
-# divider = make_axes_locatable(ax)  # Adjust the dimensions of the color bar
-# cax = divider.append_axes("right", size="3%", pad=0.05)
-# plt.suptitle('Abundance Z-score')
-# plt.colorbar(heatMapAbeZ, cax)
-#
-# COVERAGE
-# Heat map using output values for Coverage
-# plt.figure(3)
-# plt.yticks(np.arange(len(dfCov.index)), dfCov.index)  # Set sample names as Y-axis
-# plt.xticks(np.arange(len(dfCov.columns)), dfCov.columns, rotation='vertical')  # Set virus ids as X-axis
-# ax = plt.gca()  # Get the axes
-# heatMapCov = plt.imshow(dfCov, cmap=cmap)
-# divider = make_axes_locatable(ax)  # Adjust the dimensions of the color bar
-# cax = divider.append_axes("right", size="3%", pad=0.05)
-# plt.suptitle('Coverage')
-# plt.colorbar(heatMapCov, cax)
-# plt.show()
-# # Heat map using z-score for Coverage
-# dfCov0 = pd.DataFrame(valCov, index=index, columns=cols)
-# dfCovZ = zscore(dfCov0)
-# plt.figure(4)
-# plt.yticks(np.arange(len(dfCovZ.index)), dfCovZ.index)  # Set sample names as Y-axis
-# plt.xticks(np.arange(len(dfCovZ.columns)), dfCovZ.columns, rotation='vertical')  # Set virus ids as X-axis
-# ax = plt.gca()  # Get the axes
-# heatMapCovZ = plt.imshow(dfCovZ, cmap=cmap)
-# divider = make_axes_locatable(ax)  # Adjust the dimensions of the color bar
-# cax = divider.append_axes("right", size="3%", pad=0.05)
-# plt.suptitle('Coverage Z-score')
-# plt.colorbar(heatMapCovZ, cax)
-#
-# # ERROR RATE
-# # Heat map using output values for Error rate
-# plt.figure(5)
-# plt.yticks(np.arange(len(dfErr.index)), dfErr.index)  # Set sample names as Y-axis
-# plt.xticks(np.arange(len(dfErr.columns)), dfErr.columns, rotation='vertical')  # Set virus ids as X-axis
-# ax = plt.gca()  # Get the axes
-# heatMapErr = plt.imshow(dfErr, cmap=cmap)
-# divider = make_axes_locatable(ax)  # Adjust the dimensions of the color bar
-# cax = divider.append_axes("right", size="3%", pad=0.05)
-# plt.suptitle('Error rate')
-# plt.colorbar(heatMapErr, cax)
-#
-# # Heat map using z-score for Error rate
-# dfErr0 = pd.DataFrame(valErr, index=index, columns=cols)
-# dfErrZ = zscore(dfErr0)
-# plt.figure(6)
-# plt.yticks(np.arange(len(dfErrZ.index)), dfErrZ.index)  # Set sample names as Y-axis
-# plt.xticks(np.arange(len(dfErrZ.columns)), dfErrZ.columns, rotation='vertical')  # Set virus ids as X-axis
-# ax = plt.gca()  # Get the axes
-# heatMapErrZ = plt.imshow(dfErrZ, cmap=cmap)
-# divider = make_axes_locatable(ax)  # Adjust the dimensions of the color bar
-# cax = divider.append_axes("right", size="3%", pad=0.05)
-# plt.suptitle('Error rate Z-score')
-# plt.colorbar(heatMapErrZ, cax)
+# BINARY SCORE
 
 # CORRELATION
-#
-# vars = np.column_stack((np.asarray(Abs).astype(np.float), np.asarray(Covs).astype(np.float), np.asarray(Errs).astype(np.float)))
-# print np.corrcoef(vars, rowvar=False)
-#
-# fig = plt.figure(7)
-# ax = fig.add_subplot(111, projection='3d')
-# ax.scatter(np.asarray(Abs).astype(np.float), np.asarray(Covs).astype(np.float), np.asarray(Errs).astype(np.float), c='r')
-# ax.set_xlabel('Abundance')
-# ax.set_ylabel('Coverage')
-# ax.set_zlabel('Error Rate')
-#
+vars = np.column_stack((np.asarray(Abn).astype(np.float), np.asarray(Cov).astype(np.float), np.asarray(Err).astype(np.float)))
+print np.corrcoef(vars, rowvar=False)
+
+fig = plt.figure(7)
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(np.asarray(Abn).astype(np.float), np.asarray(Cov).astype(np.float), np.asarray(Err).astype(np.float), c='r')
+ax.set_xlabel('Abundance')
+ax.set_ylabel('Coverage')
+ax.set_zlabel('Error Rate')
+
 # PCA
 
-outPCA = pd.DataFrame.from_dict(outputScore, orient='index')  # Convert the dictionary to a DataFrame
-index = outPCA.index  # Sample rows
-valPCA = outPCA.values
-dfPCA = pd.DataFrame(valPCA, index=index)
-dfPCA = dfPCA[dfPCA.columns].astype(float)
-
 statsDict = defaultdict(list)
-for index in dfPCA.index.tolist():
+for index in dfScoreBinary.index.tolist():
 	for name in stats['FileName']:
 		if index != 'Pan_troglodytes_troglodytes-13656_Brigitte':
 			if index == name:
 				statsDict[name].append(stats.at[stats[stats['FileName'] == name].index.values.astype(int)[0], statsColumn])
-# print statsDict
-dfStats = pd.DataFrame.from_dict(statsDict, orient='index', columns=[statsColumn])  # Convert the dictionary to a DataFrame
-X = StandardScaler().fit_transform(dfPCA)
 
+dfStats = pd.DataFrame.from_dict(statsDict, orient='index', columns=[statsColumn])  # Convert the dictionary to a DataFrame
+X = StandardScaler().fit_transform(dfScoreBinary)
+print dfStats
 pca = PCA(n_components=2)
 principalComponents = pca.fit_transform(X)
 principalDf = pd.DataFrame(data=principalComponents, columns=['principal component 1', 'principal component 2'], index=sampleNames)
-# print principalDf['principal component 2']
-# dfs = [principalDf, dfStats]
-# colsPCA = ['principal component 1', 'principal component 2', statsColumn]
-# keys = ['value1', 'value2']
-# pd.concat(
-#     [df.set_index(colsPCA).value for df in dfs],
-#     axis=1, keys=keys)
-# print dfs
-
 finalDf = pd.concat([principalDf, dfStats], axis=1, sort=False)
-# print finalDf['principal component 2']
-print principalDf.loc[principalDf['principal component 2'] == max(principalDf['principal component 2'])]
-# print principalDf.idxmax()
-# print principalDf['principal component 2'][76]
+
+# Check for outliers
+# print principalDf.loc[principalDf['principal component 2'] == max(principalDf['principal component 2'])]
+
+# Plot PCA
 fig = plt.figure(2,figsize = (8,8))
 ax = fig.add_subplot(1,1,1)
 ax.set_xlabel('Principal Component 1', fontsize = 15)
 ax.set_ylabel('Principal Component 2', fontsize = 15)
 ax.set_title('2 component PCA', fontsize= 20)
-targets = ['Gorilla', 'Homo sapiens', 'Pan troglodytes', 'Pan paniscus', 'Pongo']
-colors = ['r','g','b','m','y']
+targets = ['Gorilla', 'Pan troglodytes', 'Pan paniscus', 'Pongo']  # Change according to values for chosen column
+colors = ['r','b','m','y']  # Change according to values for chosen column
 for target, color in zip(targets,colors):
-    indicesToKeep = finalDf[statsColumn] == target
+	indicesToKeep = finalDf[statsColumn] == target
     ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1']
                , finalDf.loc[indicesToKeep, 'principal component 2']
                , c = color
