@@ -20,7 +20,7 @@ def zscore(dataFrame):
 
 inputFile = 'test_output/output.tsv'
 sampleStats = 'test_output/sample_stats_complete.xlsx'
-statsColumn = 'Sequencing centre'
+statsColumn = 'Species'
 data = defaultdict(list)
 virus = defaultdict(list)
 virusLabel = set()
@@ -83,7 +83,22 @@ cols = list(virusLabel)  # Virus columns
 valScore = outScore.values
 valScore_NaN = np.ma.masked_where(valScore == 0, valScore)  # Abundance == 0 is replaced by NaN
 dfScore = pd.DataFrame(valScore_NaN, index=index, columns=cols)
-dfScore = dfScore[dfScore.columns].astype(float)
+dfScore = dfScore[dfScore.columns].astype(float).sort_index()
+# print dfScore
+#
+# dfScoreBinary = pd.DataFrame(valScore, index=index, columns=cols)
+# dfScoreBinary = dfScoreBinary[dfScoreBinary.columns].astype(float).sort_index()
+# Zero = dfScoreBinary.where(dfScoreBinary != 0)
+# print Zero
+# for ids in virusLabel:
+# 	for index, row in dfScoreBinary.iterrows():
+# 		print dfScoreBinary[row[ids]]
+# 		if row[ids] < 5:
+# 			dfScoreBinary[index] = 0
+# 		else:
+# 			dfScoreBinary[index] = 1
+# print dfScoreBinary
+
 # ABUNDANCE
 # Create pandas DataFrame for Abundance
 outAbe = pd.DataFrame.from_dict(outputAbe, orient='index', columns=virusLabel)  # Convert the dictionary to a DataFrame
@@ -120,7 +135,7 @@ dfCov = dfCov[dfCov.columns].astype(float)
 # HEAT MAPS
 
 # General color scheme for the heat maps
-cmap = plt.cm.Reds
+cmap = plt.cm.Greens
 cmap.set_bad(color='white')
 #
 # # ABUNDANCE
@@ -136,7 +151,7 @@ cmap.set_bad(color='white')
 # plt.colorbar(heatMapAbe, cax)
 
 # SUPER SCORE
-plt.figure(1)
+plt.figure(1, figsize = (8,8))
 plt.yticks(np.arange(len(dfScore.index)), dfScore.index)  # Set sample names as Y-axis
 plt.xticks(np.arange(len(dfScore.columns)), dfScore.columns, rotation='vertical')  # Set virus ids as X-axis
 ax = plt.gca()  # Get the axes
@@ -233,9 +248,9 @@ dfPCA = dfPCA[dfPCA.columns].astype(float)
 statsDict = defaultdict(list)
 for index in dfPCA.index.tolist():
 	for name in stats['FileName']:
-		# if index != 'Pan_troglodytes_troglodytes-13656_Brigitte':
-		if index == name:
-			statsDict[name].append(stats.at[stats[stats['FileName'] == name].index.values.astype(int)[0], statsColumn])
+		if index != 'Pan_troglodytes_troglodytes-13656_Brigitte':
+			if index == name:
+				statsDict[name].append(stats.at[stats[stats['FileName'] == name].index.values.astype(int)[0], statsColumn])
 # print statsDict
 dfStats = pd.DataFrame.from_dict(statsDict, orient='index', columns=[statsColumn])  # Convert the dictionary to a DataFrame
 X = StandardScaler().fit_transform(dfPCA)
@@ -262,8 +277,8 @@ ax = fig.add_subplot(1,1,1)
 ax.set_xlabel('Principal Component 1', fontsize = 15)
 ax.set_ylabel('Principal Component 2', fontsize = 15)
 ax.set_title('2 component PCA', fontsize= 20)
-targets = ['WTSI', 'UWash', 'WashU', 'CNAG', 'SciLifeLab', 'Stanford', 'Illumina Ltd','Seattle','UPF-CSIC','Unknown','SDZIR','FGCZ']
-colors = ['r','g','k','m','c','y','b','coral','purple','teal','olive','lime']
+targets = ['Gorilla', 'Homo sapiens', 'Pan troglodytes', 'Pan paniscus', 'Pongo']
+colors = ['r','g','b','m','purple','c']
 for target, color in zip(targets,colors):
     indicesToKeep = finalDf[statsColumn] == target
     ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1']

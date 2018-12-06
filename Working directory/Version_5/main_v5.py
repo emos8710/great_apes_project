@@ -90,8 +90,8 @@ for i in range(len(files)):
 	with open(outfile_path, 'a') as outfile:
 		tsv_writer = csv.writer(outfile, delimiter='\t')
 		for key in Abundance:  # Go through all virus IDs, should be same from all functions from the same file
-			# if Abundance.get(key) > AbundanceThreshold and Mapped.get(key) > MappedThreshold and \
-			#  		ErrorRate.get(key) < ErrorRateThreshold:
+			if Abundance.get(key) > AbundanceThreshold and Mapped.get(key) > MappedThreshold and \
+			 		ErrorRate.get(key) < ErrorRateThreshold:
 				tsv_writer.writerow([files[i].name.split('.')[0].split('/')[1], key, virus[key],
 									float(round(Abundance.get(key), 3)),
 									float(round(Mapped.get(key), 3)),
