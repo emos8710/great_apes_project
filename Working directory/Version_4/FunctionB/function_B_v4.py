@@ -46,7 +46,7 @@ def functionB(sample_file, virus_ids, mean_th=1.0, peak_locov=0.15, peak_hicov=0
 	import gzip
 	import numpy as np
 	from collections import defaultdict
-	# import matplotlib.pyplot as plt
+	import matplotlib.pyplot as plt
 
 	# Read mapped nucleotides into a dict of lists containing the number of maps per nuc
 	# As well as saving the locations of each map in the virus genome
@@ -84,9 +84,10 @@ def functionB(sample_file, virus_ids, mean_th=1.0, peak_locov=0.15, peak_hicov=0
 		mean_end = np.mean(temp[lim85+1:lim100], axis=0)[1] if lim85+1 < lim100 else 0
 
 		# Remove sites with too high coverage if there is a peak
-		if mean_end > mean_mid * mean_th and mean_beg > mean_mid:
+		if mean_end > mean_mid * mean_th and mean_beg > mean_mid * 1.2:		# The 1.2 prevents scenarios where a low-cov
+																			# peak is identified by mistake
 			inx = [i for i, x in enumerate(maps[key]) if x < temp[lim85][0]]		# x < temp[lim85][0] removes the
-			# 15 % most covered sites
+																					# 15 % most covered sites
 			removed = [nr for cov, nr in temp if cov >= temp[lim85][0]]
 		else:
 			inx = [i for i, x in enumerate(maps[key])]
@@ -116,14 +117,21 @@ def functionB(sample_file, virus_ids, mean_th=1.0, peak_locov=0.15, peak_hicov=0
 	# 	plt.bar(range(0, len(bars)), bars)
 	# plt.show()
 
-	# Bar plots of the trimmed viruses pre timming
-	# nr = 9 if len(trimmed.keys()) > 9 else len(trimmed.keys())
-	# to_plot = trimmed.keys()
+	# Bar plots of a specific virus before and after trimming
+	# # Before
+	# to_plot = "NC_006432.1"
 	# plt.figure()
-	# for i in range(1, nr + 1):
-	# 	plt.subplot(3, 3, i)
-	# 	bars = np.bincount(trimmed[to_plot[i - 1]])
-	# 	plt.bar(range(0, len(bars)), bars)
+	# plt.subplot(1, 2, 1)
+	# bars = np.bincount(maps[to_plot])
+	# plt.bar(range(0, len(bars)), bars)
+	# # After
+	# plt.subplot(1, 2, 2)
+	# trim_mapped = list()
+	# for i in range(len(virus_result[to_plot]['trim_map_nuc'])):
+	# 	trim_mapped.append(len(virus_result[to_plot]['trim_map_nuc'][i]))
+	# bars = np.bincount(trim_mapped)
+	# plt.bar(range(0, len(bars)), bars)
+	#
 	# plt.show()
 
 	return virus_result
