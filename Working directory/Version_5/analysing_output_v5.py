@@ -20,11 +20,15 @@ virus = defaultdict(list)
 virusLabel = set()
 sampleNames = set()
 
-sampleStats = 'test_output/sample_stats_complete2.xlsx'
-statsColumn = 'Species' # Specify which column should be used for PCA
-allStats = pd.read_excel(sampleStats)
-stats = allStats[['FileName',statsColumn]]
+sampleStats = 'test_output/sample_stats_complete.xlsx'
+statsColumn = 'Birth origin' # Specify which column should be used for PCA
+# For ANOVA
+# allStats = pd.read_excel(sampleStats, index_col='FileName')
+# stats = allStats[statsColumn]
 
+allStats = pd.read_excel(sampleStats)
+stats = allStats[['FileName', statsColumn]]
+# print stats
 Abn = []  # Store for correlation test and 3D scatter plot
 Cov = []
 Err = []
@@ -36,18 +40,24 @@ virus3 = 'NC_009334.1'  # Human herpesvirus 4
 virus4 = 'NC_007605.1'  # Human gammaherpesvirus 4
 virus5 = 'NC_001604.1'  # Enterobacteria phage T7
 
+# If you want to remove outliers from PCA
+outlier1 = 'Pongo_pygmaeus-A988'
+outlier2 = 'Gorilla_gorilla_gorilla-KB5792_Carolyn'
+outlier3 = 'Gorilla_gorilla_gorilla-KB7973_Porta'
 with open(inputFile) as f:
 	firstLine = f.readline()  # Don't include header
 	for line in f:
 		(fileName, virusId, virusName, abundance, coverage, errorRate, percentRemoved) = line.strip().split("\t")
-		if (virusId != virus1) & (virusId != virus2) & (virusId != virus3) & (virusId != virus4) & (virusId != virus):
-			data[fileName].append((virusId, abundance, coverage, errorRate, percentRemoved))
-			virus[virusId].append((fileName, abundance, coverage, errorRate, percentRemoved))
-			virusLabel.add(virusId)
-			sampleNames.add(fileName)
-			Abn.append(abundance)
-			Cov.append(coverage)
-			Err.append(errorRate)
+		# if (virusId != virus1) & (virusId != virus2) & (virusId != virus3) & (virusId != virus4) & (virusId != virus5):
+		# if (fileName != outlier1) & (fileName != outlier2) & (fileName != outlier3):
+		data[fileName].append((virusId, abundance, coverage, errorRate, percentRemoved))
+		virus[virusId].append((fileName, abundance, coverage, errorRate, percentRemoved))
+		print virusId, virusName
+		virusLabel.add(virusId)
+		sampleNames.add(fileName)
+		Abn.append(abundance)
+		Cov.append(coverage)
+		Err.append(errorRate)
 
 outputScore = defaultdict(list)
 names = []
@@ -75,23 +85,29 @@ valScore = outScore.values
 valScore_NaN = np.ma.masked_where(valScore == 0, valScore)  # Score == 0 is replaced by NaN
 dfScore = pd.DataFrame(valScore_NaN, index=index, columns=cols)
 dfScore = dfScore[dfScore.columns].astype(float).sort_index()
+dfScore0 = pd.DataFrame(valScore, index=index, columns=cols)  # Score == 0 kept as 0
+dfScore0 = dfScore0[dfScore0.columns].astype(float).sort_index()
+######## NOT DONE
+
+def binary(df):
+	scoreThreshold = 0.5  # Set threshold
+	for i in df.index:
+		for col in df.columns:
+			if df.at[i, col] >= scoreThreshold:
+				df.at[i,col] = 1
+			else:
+				df.at[i, col] = 0
+	return df
 
 dfScoreBinary = pd.DataFrame(valScore, index=index, columns=cols)  # Score == 0 kept as 0
 dfScoreBinary = dfScoreBinary[dfScoreBinary.columns].astype(float).sort_index()
+binary(dfScoreBinary)
 
-######## NOT DONE
-
-# Zero = dfScoreBinary.where(dfScoreBinary != 0)
-# print Zero
-# for ids in virusLabel:
-# 	for index, row in dfScoreBinary.iterrows():
-# 		print dfScoreBinary[row[ids]]
-# 		if row[ids] < 5:
-# 			dfScoreBinary[index] = 0
-# 		else:
-# 			dfScoreBinary[index] = 1
-# print dfScoreBinary
 ########
+
+writer = pd.ExcelWriter('test_output/test_data_diff_scores_file.xlsx', engine='xlsxwriter')
+dfScore.to_excel(writer, sheet_name='Test_data_scores')
+writer.save()
 
 # The DataFrames will have the format:
 #                                                    Rose rosette emaravirus  ...   Bwamba orthobunyavirus
@@ -108,7 +124,7 @@ dfScoreBinary = dfScoreBinary[dfScoreBinary.columns].astype(float).sort_index()
 cmap = plt.cm.Greens
 cmap.set_bad(color='white')
 
-# SUPER SCORE
+# # SUPER SCORE
 plt.figure(1, figsize = (8,8))
 plt.yticks(np.arange(len(dfScore.index)), dfScore.index)  # Set sample names as Y-axis
 plt.xticks(np.arange(len(dfScore.columns)), dfScore.columns, rotation='vertical')  # Set virus ids as X-axis
@@ -120,8 +136,13 @@ plt.suptitle('Super Score')
 plt.colorbar(heatMapScore, cax)
 
 # BINARY SCORE
-
-# CORRELATION
+plt.figure(2, figsize = (8,8))
+plt.yticks(np.arange(len(dfScoreBinary.index)), dfScoreBinary.index)  # Set sample names as Y-axis
+plt.xticks(np.arange(len(dfScoreBinary.columns)), dfScoreBinary.columns, rotation='vertical')  # Set virus ids as X-axis
+heatMapScoreBinary = plt.imshow(dfScoreBinary, cmap=cmap)
+plt.suptitle('Binary Score')
+plt.show()
+CORRELATION
 vars = np.column_stack((np.asarray(Abn).astype(np.float), np.asarray(Cov).astype(np.float), np.asarray(Err).astype(np.float)))
 print np.corrcoef(vars, rowvar=False)
 
@@ -133,39 +154,55 @@ ax.set_ylabel('Coverage')
 ax.set_zlabel('Error Rate')
 
 # PCA
-
 statsDict = defaultdict(list)
 for index in dfScoreBinary.index.tolist():
 	for name in stats['FileName']:
-		if index != 'Pan_troglodytes_troglodytes-13656_Brigitte':
 			if index == name:
+				# print statsDict[name].append(stats.at[name])
 				statsDict[name].append(stats.at[stats[stats['FileName'] == name].index.values.astype(int)[0], statsColumn])
 
 dfStats = pd.DataFrame.from_dict(statsDict, orient='index', columns=[statsColumn])  # Convert the dictionary to a DataFrame
-X = StandardScaler().fit_transform(dfScoreBinary)
 print dfStats
+X = StandardScaler().fit_transform(dfScoreBinary)
+# print dfStats
 pca = PCA(n_components=2)
 principalComponents = pca.fit_transform(X)
 principalDf = pd.DataFrame(data=principalComponents, columns=['principal component 1', 'principal component 2'], index=sampleNames)
 finalDf = pd.concat([principalDf, dfStats], axis=1, sort=False)
-
+print finalDf
 # Check for outliers
-# print principalDf.loc[principalDf['principal component 2'] == max(principalDf['principal component 2'])]
+print principalDf.loc[principalDf['principal component 2'] == max(principalDf['principal component 2'])]
 
 # Plot PCA
-fig = plt.figure(2,figsize = (8,8))
+fig = plt.figure(3,figsize = (8,8))
 ax = fig.add_subplot(1,1,1)
 ax.set_xlabel('Principal Component 1', fontsize = 15)
 ax.set_ylabel('Principal Component 2', fontsize = 15)
 ax.set_title('2 component PCA', fontsize= 20)
-targets = ['Gorilla', 'Pan troglodytes', 'Pan paniscus', 'Pongo']  # Change according to values for chosen column
-colors = ['r','b','m','y']  # Change according to values for chosen column
+targets = ['Wild born', 'Captive born', 'Human']  # Change according to values for chosen column
+colors = ['r','b','g']  # Change according to values for chosen column
 for target, color in zip(targets,colors):
 	indicesToKeep = finalDf[statsColumn] == target
-    ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1']
+	ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1']
                , finalDf.loc[indicesToKeep, 'principal component 2']
                , c = color
                , s = 50)
 ax.legend(targets)
 ax.grid()
 plt.show()
+
+# ANOVA
+# ind = []
+# for index in dfScore0.index:
+# 	for filename in allStats.index:
+# 		if index == filename:
+# 			ind.append(index)
+#
+# # print allStats.ix[ind]
+# # print dfScore0
+# dfAnova = pd.concat([allStats.ix[ind], dfScore0], axis=1, sort=False)
+
+# writer = pd.ExcelWriter('test_output/ANOVA_file.xlsx', engine='xlsxwriter')
+# dfAnova.to_excel(writer, sheet_name='ANOVA')
+
+# writer.save()

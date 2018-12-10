@@ -11,8 +11,8 @@ from functionC_v2 import functionC
 
 
 MappedThreshold = 0.1
-incoherenceThreshold = 0.07
-ErrorRateThreshold = 0.3
+incoherenceThreshold = 0.03
+ErrorRateThreshold = 0.08
 AbundanceThreshold = 7
 smooth = 1  # put 1 if you want smoothed filtering, 0 if not
 binsize = 50
