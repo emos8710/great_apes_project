@@ -7,8 +7,8 @@ import numpy as np
 # and plots incoherence of mapping
 
 incoherenceThreshold = 0.07
-incoherenceThresholdSmooth = 0.03
-binsize = 30
+incoherenceThresholdSmooth = 0.07
+binsize = 50
 jumpSize = 100
 
 
@@ -17,9 +17,6 @@ path = 'sample_data/'  # Directory where all files are stored
 for name in os.listdir(path):  # save all files to files variable
     files.append(gzip.open(path + name))
 
-# ApeDictionary = {}
-
-# output = 'test_output/output.tsv' #Output path
 headers = ['FileName', 'VirusID', 'VirusName', 'Abundance', 'Coverage', 'ErrorRate']
 
 virusFile = "virus_data/virus_names.tsv"
@@ -49,7 +46,7 @@ for i in range(len(files)):  # go through all files and call functions A, B and 
     mismatches = {}
     errorRate = {}
     for x in viruses:
-        if x == 'NC_022518.1':
+        if x == 'NC_006432.1':
             counter = 0
             misnuc = 0
             Fractions = []
@@ -65,8 +62,6 @@ for i in range(len(files)):  # go through all files and call functions A, B and 
                 G = 0
                 for j in range(len(maps)):  # go through the mapped nucleotides
                     counter = counter + 1
-                    # if maps[j] != mapping[0]: #check if mapped nucs are same as reference
-                    # misnuc = misnuc +1
                     # Check how coherent the maps are
 
                     if maps[j] == 'A':
@@ -180,6 +175,8 @@ for i in range(len(files)):  # go through all files and call functions A, B and 
                     FilteredFractions.append(Fractions[b])
                     FilteredPositions.append(Positions[b])
 
+            #  PLOT
+
             f, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, sharey=True)
 
             ax1.plot(Positions, Fractions)
@@ -199,11 +196,9 @@ for i in range(len(files)):  # go through all files and call functions A, B and 
 
             ax1.set_title('original')
             ax2.set_title('Smoothed')
-            ax3.set_title('Filtered, kept fraction: %f' %round(float(len(FilteredPositions))/float(len(Positions)), 2))
-            ax4.set_title('Filtered Smoothed, kept fraction: %f' %round(float(len(FilteredPositionsSmooth))/float(len(Positions)), 2))
+            ax3.set_title('Filtered, kept fraction: %1.3f' % (float(len(FilteredPositions))/float(len(Positions))))
+            ax4.set_title('Filtered Smoothed, kept fraction: %1.3f' % (float(len(FilteredPositionsSmooth))/float(len(Positions))))
 
-
-            # ax3.set_title(float(len(FilteredPositions)/len(Positions)))
             # PLOT THE GAPS
             for c in gaps:
                 ax1.plot([Positions[c + 1], Positions[c + 1]], [0, 0.6], color='g', linestyle='--', linewidth=1)
@@ -211,12 +206,9 @@ for i in range(len(files)):  # go through all files and call functions A, B and 
             f.suptitle('file = {}, binsize = {}, S_thresh = {}, thresh = {}'.format(files[i].name, binsize, incoherenceThresholdSmooth, incoherenceThreshold))
             plt.show()
 
-# NC_029996.1
-# NC_024359.1
-
 # THE BELOW SECTION DRAWS DIFFERENT COLOURED LINES FOR DIFFERENT SIZE JUMPS IN THE MAPPED SEQUENCE
-# Herpes: NC_009334.1
 #            pos = 0
+#            plt.figure()
 #            while pos < len(Fractions)-1:
 #                if int(Positions[pos + 1]) > int(Positions[pos]) + 10:  # if there is a jump of at least 10 positions
 #                    if int(Positions[pos + 1]) > int(Positions[pos]) + 100:  # if there is a jump of at least 100 positions
