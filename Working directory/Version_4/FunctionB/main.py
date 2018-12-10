@@ -12,7 +12,7 @@ virus_name_file = "virus_data/virus_names.tsv"
 
 # SAVE SAMPLE FILE NAMES
 files = []
-path = 'sample_data/'  # Directory where all files are stored
+path = 'test_sample/'  # Directory where all files are stored
 for name in os.listdir(path):  # save all files to files variable
 	files.append(gzip.open(path + name))
 
