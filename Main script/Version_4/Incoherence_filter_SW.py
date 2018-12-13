@@ -1,7 +1,48 @@
-def incoherence_filter_sw(Cov_result, incoherenceThreshold, smooth, binsize=3, jumpSize=100):
+def incoherence_filter_sw(Cov_result, incoherenceThreshold, smooth, binsize=50, jumpSize=100):
+    """
+    Removes positions or regions with high incoherence in the mapping. If smoothing is specified, a sliding window is used.
+    the window will not slide across gaps in the mapping.
+
+    Ezample of sliding window. The dotted vertical line represents a large gap in the mapping. The numbers are the
+    incoherence score of those positions, and the brackets show the sliding sindows that would be applied to this virus.
+                 |
+    0   0   0.3  |  0.3   0   0   0.5   0       Score:
+    |_________|  |                                 0.1
+                    |________|                     0.1
+                          |________|               0.17
+                              |_________|          0.17
+
+    Parameters
+    --------------
+    Cov_result: dictionary
+        Keys are virus IDs, and values are dictionaries with keys 'trim_ref_nuc', 'trim_map_nuc',
+        'trim_map_loc' and values are lists of reference nucleotides, mapped nucleotides, mapped positions in reference genome.
+        example: {‘NC.006432’: {‘trim_map_loc’: [3517, 3518, 3519, 3522, 3523], ‘trim_ref_nuc’: [‘A’, ‘A’, ‘C’, ‘T’, ‘A’],
+         ‘trim_map_nuc’: [‘AAAA’, ‘AAT’, ‘CC’, ‘TTGTT’, ‘AAAA’]},
+        ‘NC.005269’: {‘trim_map_loc’: [201, 202], ‘trim_ref_nuc’: [‘C’, ‘G’], ‘trim_map_nuc’: [‘C’, ’GG’]}}
+
+    incoherenceThreshold: double.
+        Defines maximum incoherence score allowed in order for region/positions to be kept, and
+        not filtered out.
+
+    smooth: int.
+        Should be 1 or 0. 1 will make the functions smooth the incoherence score using sliding windows. 0 will make
+        the function filter without any filtering.
+
+    binsize: int, optional.
+        Size of sliding window for smoothing
+
+    jumpSize: int, optional.
+        Specifies the maximum distance allowed between two mapped positions in order for the sliding window to
+        keep sliding across those positions.
+
+    Returns
+    ---------------
+    Dictionary with the virus ID as keys. The values are another dictionary, containing the keys
+    ‘positions’, ‘mapped_nucs’, ‘ref_nuc’ and ‘nr_removed_sites’. The values of these dictionaries are lists with
+    mapping locations,  mapped nucleotides, reference nucleotides and number of sites that were removed by the filter.
+    """
     import numpy as np
-    # This function takes as input a dictionary with virus IDs as keys, and values are dictionaries were the keys are reference
-    # nucleotide, mapped nucleotides and mapped nucleotides, with the corresponding values.
 
     result = {}
 
