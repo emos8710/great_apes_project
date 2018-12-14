@@ -13,13 +13,22 @@ def incoherence_filter_sw(Cov_result, incoherenceThreshold, smooth, binsize=50, 
                               |_________|          0.17
 
     Parameters
-    --------------
-    Cov_result: dictionary
-        Keys are virus IDs, and values are dictionaries with keys 'trim_ref_nuc', 'trim_map_nuc',
-        'trim_map_loc' and values are lists of reference nucleotides, mapped nucleotides, mapped positions in reference genome.
-        example: {‘NC.006432’: {‘trim_map_loc’: [3517, 3518, 3519, 3522, 3523], ‘trim_ref_nuc’: [‘A’, ‘A’, ‘C’, ‘T’, ‘A’],
-         ‘trim_map_nuc’: [‘AAAA’, ‘AAT’, ‘CC’, ‘TTGTT’, ‘AAAA’]},
-        ‘NC.005269’: {‘trim_map_loc’: [201, 202], ‘trim_ref_nuc’: [‘C’, ‘G’], ‘trim_map_nuc’: [‘C’, ’GG’]}}
+    ----------
+    Cov_result : dict
+        Output from the coverage filter. Keys are virus IDs, and values are dictionaries with keys 'trim_ref_nuc',
+        'trim_map_nuc', 'trim_map_loc' and values are lists of reference nucleotides, mapped nucleotides,
+        mapped positions in reference genome.
+
+        Example:
+            {   'NC.006432':{   'trim_map_loc': [3517, 3518, 3519, 3522, 3523],
+                                'trim_ref_nuc': ['A', 'A', 'C', 'T', 'A'],
+                                'trim_map_nuc': ['AAAA', 'AAT', 'CC', 'TTGTT', 'AAAA']
+                            },
+                'NC.005269':{   'trim_map_loc': [201, 202],
+                                'trim_ref_nuc': ['C', 'G'],
+                                'trim_map_nuc': ['C', 'GG']
+                            }
+            }
 
     incoherenceThreshold: double.
         Defines maximum incoherence score allowed in order for region/positions to be kept, and
@@ -37,10 +46,12 @@ def incoherence_filter_sw(Cov_result, incoherenceThreshold, smooth, binsize=50, 
         keep sliding across those positions.
 
     Returns
-    ---------------
-    Dictionary with the virus ID as keys. The values are another dictionary, containing the keys
-    ‘positions’, ‘mapped_nucs’, ‘ref_nuc’ and ‘nr_removed_sites’. The values of these dictionaries are lists with
-    mapping locations,  mapped nucleotides, reference nucleotides and number of sites that were removed by the filter.
+    -------
+    dict
+        Dictionary with the virus ID as keys. The values are another dictionary, containing the keys
+        'positions', 'mapped_nucs', 'ref_nuc' and 'nr_removed_sites'. The values of these dictionaries are lists with
+        mapping locations,  mapped nucleotides, reference nucleotides and number of sites that were
+        removed by the filter.
     """
     import numpy as np
 
@@ -81,7 +92,7 @@ def incoherence_filter_sw(Cov_result, incoherenceThreshold, smooth, binsize=50, 
         FilteredFractions = []
         FilteredPositions = []
         FilteredMap = []
-        FilteredRef= []
+        FilteredRef = []
         deleteSites = []
 
         if smooth == 1:  # if we want to smooth before filtering
@@ -163,7 +174,7 @@ def incoherence_filter_sw(Cov_result, incoherenceThreshold, smooth, binsize=50, 
                     FilteredRef.append(reference[y])
                     FilteredMap.append(mapped[y])
         else:
-        # IF WE DONT WANT TO SMOOTH, USE THIS PART FOR FILTERING
+            # IF WE DONT WANT TO SMOOTH, USE THIS PART FOR FILTERING
             for b in range(len(Positions)):
                 if Fractions[b] < incoherenceThreshold:
                     FilteredFractions.append(Fractions[b])
