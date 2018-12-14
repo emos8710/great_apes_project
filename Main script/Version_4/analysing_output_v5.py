@@ -21,13 +21,13 @@ virusLabel = set()
 sampleNames = set()
 
 sampleStats = 'test_output/sample_stats_complete.xlsx'
-statsColumn = 'Birth origin' # Specify which column should be used for PCA
+statsColumn = 'Birth Origin' # Specify which column should be used for PCA
 # For ANOVA
 # allStats = pd.read_excel(sampleStats, index_col='FileName')
 # stats = allStats[statsColumn]
 
 allStats = pd.read_excel(sampleStats)
-stats = allStats[['FileName', statsColumn]]
+stats = allStats[['File name', statsColumn]]
 # print stats
 Abn = []  # Store for correlation test and 3D scatter plot
 Cov = []
@@ -156,10 +156,10 @@ ax.set_zlabel('Error Rate')
 # PCA
 statsDict = defaultdict(list)
 for index in dfScoreBinary.index.tolist():
-	for name in stats['FileName']:
+	for name in stats['File name']:
 			if index == name:
 				# print statsDict[name].append(stats.at[name])
-				statsDict[name].append(stats.at[stats[stats['FileName'] == name].index.values.astype(int)[0], statsColumn])
+				statsDict[name].append(stats.at[stats[stats['File name'] == name].index.values.astype(int)[0], statsColumn])
 
 dfStats = pd.DataFrame.from_dict(statsDict, orient='index', columns=[statsColumn])  # Convert the dictionary to a DataFrame
 print dfStats
