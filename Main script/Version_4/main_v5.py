@@ -11,16 +11,16 @@ from error_rate_calc_v2 import functionC
 
 
 MappedThreshold = 0.1
-incoherenceThreshold = 0.03
+incoherenceThreshold = 0.04
 ErrorRateThreshold = 0.08
-AbundanceThreshold = 7
+AbundanceThreshold = 10
 smooth = 1  # put 1 if you want smoothed filtering, 0 if not
 binsize = 50
 jumpSize = 100
 
 # Create output file. OVERWRITES PREVIOUS OUTPUT FILE!
 outfile_path = 'test_output/output.tsv'		# Output path
-headers = ['FileName', 'VirusID', 'VirusName', 'Abundance', 'Mapped percent', 'ErrorRate', 'Percent removed']  # headers in the file
+headers = ['FileName', 'VirusID', 'VirusName', 'Abundance', 'Mapped percent', 'ErrorRate', 'Percent removed', 'Score']  # headers in the file
 with open(outfile_path, 'w') as outfile:
 	tsv_writer = csv.writer(outfile, delimiter='\t')
 	tsv_writer.writerow(headers)
@@ -95,7 +95,8 @@ for i in range(len(files)):
 				tsv_writer.writerow([files[i].name.split('.')[0].split('/')[1], key, virus[key],
 									float(round(Abundance.get(key), 3)),
 									float(round(Mapped.get(key), 3)),
-									float(round(ErrorRate.get(key), 3)), float(round(percentRemoved[key],4))])
+									float(round(ErrorRate.get(key), 3)), float(round(percentRemoved[key],4)),(round((float(Abundance.get(key)))*float(Mapped.get(key))*
+										(1-float(ErrorRate.get(key)))*(1-float(percentRemoved[key])),4))])
 
 niceOutput = pd.read_csv('test_output/output.tsv', sep='\t')
 niceOutput.to_csv("test_output/output_excel_file.xls", sep='\t', index=False)
