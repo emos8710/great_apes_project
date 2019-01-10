@@ -20,7 +20,7 @@ jumpSize = 100
 
 # Create output file. OVERWRITES PREVIOUS OUTPUT FILE!
 outfile_path = 'test_output/output.tsv'		# Output path
-headers = ['FileName', 'VirusID', 'VirusName', 'Abundance', 'Mapped percent', 'ErrorRate', 'Percent removed', 'Score']  # headers in the file
+headers = ['FileName', 'VirusID', 'VirusName', 'Abundance', 'Mapped percent', 'ErrorRate', 'Percent removed', 'Quality Score']  # headers in the file
 with open(outfile_path, 'w') as outfile:
 	tsv_writer = csv.writer(outfile, delimiter='\t')
 	tsv_writer.writerow(headers)

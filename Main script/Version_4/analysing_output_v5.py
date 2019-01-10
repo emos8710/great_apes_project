@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+from scipy import stats
 
 """
 Script that produces heat maps, 3D scatter plot and PCA using the output file from main.py and a excel file 
@@ -43,6 +44,7 @@ statsColumn = 'Birth origin'  # Specify which column should be used for PCA
 
 allStats = pd.read_excel(sampleStats)
 stats = allStats[['FileName', statsColumn]]
+
 test = pd.read_excel(example_output)
 
 Abn = []  # Store for correlation test and 3D scatter plot
